@@ -1,282 +1,235 @@
 'use strict';
 
-/* ── Gem data ──────────────────────────────────────────────── */
-const GEMS = [
-  {
-    id: 1,
-    name: 'Eternal Ice Diamond',
-    type: 'diamond',
-    carat: '3.42 ct',
-    origin: 'Botswana',
-    cut: 'Round Brilliant',
-    clarity: 'IF',
-    color: '#d0eaf8',
-    colorName: 'D (Colourless)',
-    cert: 'GIA',
-    price: 'POA',
-    badge: 'GIA Certified',
-    desc: 'An exceptional D/IF round brilliant exhibiting perfect symmetry and extraordinary optical performance. One of only twelve stones of this calibre sourced this year.',
-    gradient: ['#c8dff0','#e8f4fc','#a0c8e8','#d4eaf8','#88b8d8','#bcd6ec'],
-  },
-  {
-    id: 2,
-    name: 'Burmese Pigeon-Blood Ruby',
-    type: 'ruby',
-    carat: '2.18 ct',
-    origin: 'Mogok, Myanmar',
-    cut: 'Cushion',
-    clarity: 'Eye-clean',
-    color: '#c0182a',
-    colorName: 'Pigeon Blood Red',
-    cert: 'Gübelin',
-    price: 'POA',
-    badge: 'Gübelin Certified',
-    desc: 'A classic Mogok ruby with the coveted pigeon-blood designation from Gübelin. Vivid saturation with strong fluorescence under UV light — a benchmark stone.',
-    gradient: ['#b01020','#e02840','#901828','#c83040','#781020','#d84058'],
-  },
-  {
-    id: 3,
-    name: 'Colombian Muzo Emerald',
-    type: 'emerald',
-    carat: '4.05 ct',
-    origin: 'Muzo, Colombia',
-    cut: 'Emerald Cut',
-    clarity: 'Minor inclusions',
-    color: '#1a7a3a',
-    colorName: 'Vivid Green',
-    cert: 'AGL',
-    price: 'POA',
-    badge: 'AGL Certified',
-    desc: 'Sourced directly from the legendary Muzo mine, this stone exhibits the characteristic bluish-green hue and strong fluorescence associated with the finest Colombian material.',
-    gradient: ['#156030','#28a050','#107028','#20883e','#0a4820','#30b858'],
-  },
-  {
-    id: 4,
-    name: 'Kashmir Blue Sapphire',
-    type: 'sapphire',
-    carat: '5.60 ct',
-    origin: 'Kashmir, India',
-    cut: 'Oval',
-    clarity: 'Eye-clean',
-    color: '#1a3898',
-    colorName: 'Royal Blue',
-    cert: 'Gübelin',
-    price: 'POA',
-    badge: 'Kashmir Origin',
-    desc: 'An extraordinary Kashmir sapphire with the velvety, sleepy quality unique to this origin. Gübelin confirms "Kashmir, no indications of heating" — among the most coveted sapphires in existence.',
-    gradient: ['#102870','#2040b0','#0c2060','#1838a0','#081848','#2850c8'],
-  },
-  {
-    id: 5,
-    name: 'Russian Alexandrite',
-    type: 'other',
-    carat: '1.87 ct',
-    origin: 'Ural Mountains, Russia',
-    cut: 'Oval',
-    clarity: 'Eye-clean',
-    color: '#2a6040',
-    colorName: 'Green / Raspberry',
-    cert: 'GIA',
-    price: 'POA',
-    badge: 'Colour-Change',
-    desc: 'A rare Ural alexandrite demonstrating a full green-to-raspberry colour change. GIA identifies the origin as Russian — an increasingly scarce combination that commands collector premiums.',
-    gradient: ['#206040','#40a070','#184830','#30806050','#104028','#50b880'],
-  },
-  {
-    id: 6,
-    name: 'Tanzanite AAA',
-    type: 'other',
-    carat: '6.30 ct',
-    origin: 'Merelani, Tanzania',
-    cut: 'Cushion',
-    clarity: 'Loupe-clean',
-    color: '#4428a0',
-    colorName: 'Vivid Violet-Blue',
-    cert: 'GIA',
-    price: 'POA',
-    badge: 'AAA Grade',
-    desc: 'A deeply saturated tanzanite with exceptional violet-blue hue and strong trichroism. At over 6 carats in the finest colour grade, specimens like this are becoming extremely rare.',
-    gradient: ['#301880','#5030b8','#201060','#4020a8','#180848','#6040d0'],
-  },
-  {
-    id: 7,
-    name: 'Fancy Yellow Diamond',
-    type: 'diamond',
-    carat: '7.14 ct',
-    origin: 'South Africa',
-    cut: 'Radiant',
-    clarity: 'VS1',
-    color: '#e8c830',
-    colorName: 'Fancy Intense Yellow',
-    cert: 'GIA',
-    price: 'POA',
-    badge: 'Fancy Colour',
-    desc: 'A dazzling radiant-cut fancy intense yellow diamond. The warm, electric saturation is achieved without irradiation — confirmed natural colour by GIA.',
-    gradient: ['#c8a010','#f0d840','#a88008','#d8b820','#806000','#e8c830'],
-  },
-  {
-    id: 8,
-    name: 'Padparadscha Sapphire',
-    type: 'sapphire',
-    carat: '2.94 ct',
-    origin: 'Sri Lanka',
-    cut: 'Oval',
-    clarity: 'Eye-clean',
-    color: '#e07840',
-    colorName: 'Salmon-Pink',
-    cert: 'Gübelin',
-    price: 'POA',
-    badge: 'Padparadscha',
-    desc: 'A true padparadscha — the delicate blend of pink and orange that is one of the most contested and prized colour descriptions in gemology. Gübelin confirms the colour call on this exceptional Sri Lankan stone.',
-    gradient: ['#c06030','#e89060','#a05020','#d07840','#803818','#f0a878'],
-  },
-  {
-    id: 9,
-    name: 'Mozambique Ruby Pair',
-    type: 'ruby',
-    carat: '1.08 + 1.12 ct',
-    origin: 'Montepuez, Mozambique',
-    cut: 'Oval (matched pair)',
-    clarity: 'Eye-clean',
-    color: '#c82030',
-    colorName: 'Vivid Red',
-    cert: 'AGL',
-    price: 'POA',
-    badge: 'Matched Pair',
-    desc: 'A superbly matched Mozambique ruby pair — identical in colour, tone, and saturation. Ideal for earrings, this calibrated pair represents the pinnacle of Montepuez production.',
-    gradient: ['#a81828','#d83040','#881018','#b82838','#680810','#e84858'],
-  },
-];
+const WORKER_URL = 'https://nivoda-proxy.avrahamlevene.workers.dev';
 
-/* ── Colour map for CSS gem visuals ────────────────────────── */
+/* ── Colour palettes by gem type ───────────────────────────── */
 const GEM_PALETTES = {
   diamond:    ['#c8dff0','#e8f4fc','#a0c8e8','#d4eaf8','#88b8d8'],
   ruby:       ['#b01020','#e02840','#901828','#c83040','#781020'],
   emerald:    ['#156030','#28a050','#107028','#20883e','#0a4820'],
   sapphire:   ['#102870','#2040b0','#0c2060','#1838a0','#081848'],
-  alexandrite:['#206040','#40a070','#184830','#30806050','#104028'],
+  alexandrite:['#206040','#40a070','#184830','#308060','#104028'],
   tanzanite:  ['#301880','#5030b8','#201060','#4020a8','#180848'],
+  emerald_cut:['#156030','#28a050','#107028','#20883e','#0a4820'],
+  default:    ['#806040','#c0a060','#604020','#a08050','#402010'],
 };
 
-/* ── Build CSS facet gem ────────────────────────────────────── */
-function buildFacetGem(container, colors, size = 80) {
-  container.style.background = colors[0];
-  const grid = container.querySelector('.facet-grid') || document.createElement('div');
-  grid.className = 'facet-grid';
-  grid.innerHTML = '';
-  const count = 36;
-  for (let i = 0; i < count; i++) {
-    const f = document.createElement('div');
-    f.className = 'facet';
-    const opacity = 0.1 + Math.random() * 0.6;
-    const c = colors[Math.floor(Math.random() * colors.length)];
-    f.style.background = c;
-    f.style.opacity = opacity;
-    grid.appendChild(f);
-  }
-  if (!container.querySelector('.facet-grid')) container.appendChild(grid);
-  shimmerFacets(grid, colors);
+function paletteForGem(item) {
+  const cert = item.certificate || {};
+  const gem  = item.gemstone || {};
+  const shape = (cert.shape || gem.shape || '').toLowerCase();
+  const type  = (gem.type  || '').toLowerCase();
+  const color = (cert.color || gem.color || '').toLowerCase();
+
+  if (type.includes('ruby')    || color.includes('red'))    return GEM_PALETTES.ruby;
+  if (type.includes('emerald') || color.includes('green'))  return GEM_PALETTES.emerald;
+  if (type.includes('sapphire')|| color.includes('blue'))   return GEM_PALETTES.sapphire;
+  if (type.includes('alexandrite'))                          return GEM_PALETTES.alexandrite;
+  if (type.includes('tanzanite')|| color.includes('violet'))return GEM_PALETTES.tanzanite;
+  return GEM_PALETTES.diamond;
 }
 
+function gemType(item) {
+  const gem  = item.gemstone || {};
+  const type = (gem.type || '').toLowerCase();
+  if (type.includes('ruby'))       return 'ruby';
+  if (type.includes('emerald'))    return 'emerald';
+  if (type.includes('sapphire'))   return 'sapphire';
+  if (type.includes('alexandrite'))return 'other';
+  if (type.includes('tanzanite'))  return 'other';
+  if (gem.type)                    return 'other';
+  return 'diamond';
+}
+
+function formatPrice(price) {
+  if (!price) return 'POA';
+  return '$' + Number(price).toLocaleString();
+}
+
+function certLabel(item) {
+  return (item.certificate?.lab || item.gemstone?.type || 'Certified').toUpperCase();
+}
+
+function gemName(item) {
+  const cert = item.certificate || {};
+  const gem  = item.gemstone || {};
+  const carat = cert.carat || gem.carat || '';
+  const shape = cert.shape || gem.shape || '';
+  const color = cert.color || gem.color || '';
+  const type  = gem.type  || 'Diamond';
+  if (gem.type) return `${carat}ct ${color} ${type}`.trim();
+  return `${carat}ct ${color} ${shape} Diamond`.trim();
+}
+
+/* ── State ──────────────────────────────────────────────────── */
+let allGems   = [];
+let activeFilter = 'all';
+let isLoading = false;
+
+/* ── CSS gem visuals ────────────────────────────────────────── */
 function shimmerFacets(grid, colors) {
   setInterval(() => {
     const facets = grid.querySelectorAll('.facet');
     const idx = Math.floor(Math.random() * facets.length);
-    const c = colors[Math.floor(Math.random() * colors.length)];
-    facets[idx].style.background = c;
+    facets[idx].style.background = colors[Math.floor(Math.random() * colors.length)];
     facets[idx].style.opacity = 0.1 + Math.random() * 0.7;
   }, 180);
 }
 
-/* ── Build a full-size gem visual for cards/lightbox ────────── */
-function buildCardGem(container, gem) {
-  container.style.background = `linear-gradient(135deg, ${gem.gradient.join(',')})`;
+function buildFacetGem(container, colors) {
+  container.style.background = colors[0];
+  const grid = document.createElement('div');
+  grid.className = 'facet-grid';
+  for (let i = 0; i < 36; i++) {
+    const f = document.createElement('div');
+    f.className = 'facet';
+    f.style.background = colors[Math.floor(Math.random() * colors.length)];
+    f.style.opacity = 0.1 + Math.random() * 0.6;
+    grid.appendChild(f);
+  }
+  container.appendChild(grid);
+  shimmerFacets(grid, colors);
+}
+
+function buildCardGem(container, palette) {
+  container.style.background = `linear-gradient(135deg, ${palette.join(',')})`;
   container.style.position = 'relative';
   container.style.overflow = 'hidden';
-
   const grid = document.createElement('div');
   grid.className = 'facet-grid';
   grid.style.opacity = '0.4';
   for (let i = 0; i < 36; i++) {
     const f = document.createElement('div');
     f.className = 'facet';
-    const c = gem.gradient[Math.floor(Math.random() * gem.gradient.length)];
-    f.style.background = c;
+    f.style.background = palette[Math.floor(Math.random() * palette.length)];
     f.style.opacity = 0.2 + Math.random() * 0.6;
     grid.appendChild(f);
   }
   container.appendChild(grid);
-
-  // centre gem shape
   const shape = document.createElement('div');
-  shape.style.cssText = `
-    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
-  `;
+  shape.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;';
   const diamond = document.createElement('div');
   diamond.style.cssText = `
-    width:60%; padding-top:60%; background:rgba(255,255,255,0.12);
-    transform:rotate(45deg); border:1px solid rgba(255,255,255,0.25);
-    box-shadow: inset 0 0 40px rgba(255,255,255,0.08), 0 0 30px rgba(255,255,255,0.05);
+    width:60%;padding-top:60%;background:rgba(255,255,255,0.12);
+    transform:rotate(45deg);border:1px solid rgba(255,255,255,0.25);
+    box-shadow:inset 0 0 40px rgba(255,255,255,0.08),0 0 30px rgba(255,255,255,0.05);
   `;
   shape.appendChild(diamond);
   container.appendChild(shape);
-
-  shimmerFacets(grid, gem.gradient);
+  shimmerFacets(grid, palette);
 }
 
-/* ── Render gem grid ────────────────────────────────────────── */
+/* ── Fetch from Worker ──────────────────────────────────────── */
+async function fetchNivoda(type = 'diamonds', page = 0) {
+  const res = await fetch(`${WORKER_URL}?type=${type}&page=${page}`);
+  if (!res.ok) throw new Error(`Worker error ${res.status}`);
+  return res.json();
+}
+
+/* ── Loading state ──────────────────────────────────────────── */
+function showLoading() {
+  const grid = document.getElementById('gem-grid');
+  grid.innerHTML = `
+    <div style="grid-column:1/-1;text-align:center;padding:4rem 0;color:var(--text);">
+      <div style="font-size:0.75rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);">
+        Loading inventory…
+      </div>
+    </div>`;
+}
+
+function showError(msg) {
+  const grid = document.getElementById('gem-grid');
+  grid.innerHTML = `
+    <div style="grid-column:1/-1;text-align:center;padding:4rem 0;">
+      <div style="color:var(--text);font-size:0.85rem;">${msg}</div>
+    </div>`;
+}
+
+/* ── Render grid ────────────────────────────────────────────── */
 function renderGems(filter = 'all') {
+  activeFilter = filter;
   const grid = document.getElementById('gem-grid');
   grid.innerHTML = '';
-  const visible = filter === 'all' ? GEMS : GEMS.filter(g => g.type === filter);
+  const visible = filter === 'all' ? allGems : allGems.filter(g => g._type === filter);
 
-  visible.forEach((gem, i) => {
+  if (!visible.length) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:3rem 0;color:var(--text);">No stones found in this category.</div>';
+    return;
+  }
+
+  visible.forEach((item, i) => {
     const card = document.createElement('div');
     card.className = 'gem-card';
-    card.style.animationDelay = `${i * 0.07}s`;
-    card.dataset.id = gem.id;
+    card.style.animationDelay = `${i * 0.05}s`;
+
+    const hasMedia = item.image || item.video;
+    const palette  = paletteForGem(item);
+    const price    = formatPrice(item.price);
+    const name     = gemName(item);
+    const cert     = certLabel(item);
+    const carat    = (item.certificate?.carat || item.gemstone?.carat || '—') + ' ct';
+    const origin   = item.gemstone?.origin || item.certificate?.shape || '—';
 
     card.innerHTML = `
       <div class="gem-card-img">
-        <div class="gem-card-gem" id="card-gem-${gem.id}"></div>
-        <span class="gem-card-badge">${gem.badge}</span>
+        ${hasMedia
+          ? `<img src="${item.image || ''}" alt="${name}" style="width:100%;height:100%;object-fit:cover;" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+             <div class="gem-card-gem" id="card-gem-${item.id}" style="display:none;width:100%;height:100%;"></div>`
+          : `<div class="gem-card-gem" id="card-gem-${item.id}" style="width:100%;height:100%;"></div>`
+        }
+        <span class="gem-card-badge">${cert}</span>
+        ${item.video ? `<a href="${item.video}" target="_blank" class="gem-video-btn" title="Watch 360° video">▶ 360°</a>` : ''}
       </div>
       <div class="gem-card-body">
-        <h3>${gem.name}</h3>
+        <h3>${name}</h3>
         <div class="gem-card-meta">
-          <span>${gem.carat}</span>
-          <span>${gem.origin}</span>
+          <span>${carat}</span>
+          <span>${origin}</span>
         </div>
         <div class="gem-card-footer">
-          <span class="gem-price">${gem.price}</span>
+          <span class="gem-price">${price}</span>
           <span class="gem-enquire">View Details →</span>
         </div>
       </div>
     `;
     grid.appendChild(card);
-    buildCardGem(document.getElementById(`card-gem-${gem.id}`), gem);
-    card.addEventListener('click', () => openLightbox(gem));
+
+    if (!hasMedia || card.querySelector('img')) {
+      const gemEl = document.getElementById(`card-gem-${item.id}`);
+      if (gemEl) buildCardGem(gemEl, palette);
+    }
+
+    card.addEventListener('click', () => openLightbox(item));
   });
 }
 
 /* ── Lightbox ───────────────────────────────────────────────── */
-function openLightbox(gem) {
-  const lb     = document.getElementById('lightbox');
-  const bd     = document.getElementById('lightbox-backdrop');
-  const gemEl  = document.getElementById('lightbox-gem');
+function openLightbox(item) {
+  const lb    = document.getElementById('lightbox');
+  const bd    = document.getElementById('lightbox-backdrop');
+  const gemEl = document.getElementById('lightbox-gem');
+  const cert  = item.certificate || {};
+  const gem   = item.gemstone   || {};
+  const name  = gemName(item);
 
-  document.getElementById('lb-tag').textContent = gem.cert + ' Certified · ' + gem.type.charAt(0).toUpperCase() + gem.type.slice(1);
-  document.getElementById('lb-name').textContent = gem.name;
-  document.getElementById('lb-desc').textContent = gem.desc;
+  document.getElementById('lb-tag').textContent =
+    (cert.lab || gem.type || 'Certified').toUpperCase() + ' · ' +
+    (gem.type ? 'Gemstone' : 'Diamond');
+  document.getElementById('lb-name').textContent = name;
+  document.getElementById('lb-desc').textContent =
+    gem.treatment ? `Treatment: ${gem.treatment}.` : '';
 
   const specs = [
-    { label: 'Carat', val: gem.carat },
-    { label: 'Origin', val: gem.origin },
-    { label: 'Cut', val: gem.cut },
-    { label: 'Clarity', val: gem.clarity },
-    { label: 'Colour', val: gem.colorName },
-    { label: 'Certificate', val: gem.cert },
+    { label: 'Carat',      val: (cert.carat || gem.carat || '—') + ' ct' },
+    { label: 'Shape',      val: cert.shape  || gem.shape  || '—' },
+    { label: 'Colour',     val: cert.color  || gem.color  || '—' },
+    { label: 'Clarity',    val: cert.clarity|| gem.clarity|| '—' },
+    { label: 'Cut',        val: cert.cut    || '—' },
+    { label: 'Certificate',val: cert.lab    || '—' },
+    { label: 'Origin',     val: gem.origin  || '—' },
+    { label: 'Price',      val: formatPrice(item.price) },
   ];
+
   document.getElementById('lb-specs').innerHTML = specs.map(s => `
     <div class="lightbox-spec">
       <span class="spec-label">${s.label}</span>
@@ -285,8 +238,15 @@ function openLightbox(gem) {
   `).join('');
 
   gemEl.innerHTML = '';
-  gemEl.style.height = '100%';
-  buildCardGem(gemEl, gem);
+  if (item.image) {
+    gemEl.style.background = '#111';
+    gemEl.innerHTML = `<img src="${item.image}" alt="${name}" style="width:100%;height:100%;object-fit:cover;">`;
+  } else {
+    buildCardGem(gemEl, paletteForGem(item));
+  }
+
+  const certLink = document.getElementById('lb-cert-link');
+  if (certLink) certLink.style.display = cert.number ? 'inline-block' : 'none';
 
   lb.classList.add('active');
   bd.classList.add('active');
@@ -301,26 +261,55 @@ function closeLightbox() {
   document.body.style.overflow = '';
 }
 
+/* ── Load all inventory ─────────────────────────────────────── */
+async function loadInventory() {
+  if (isLoading) return;
+  isLoading = true;
+  showLoading();
+
+  try {
+    const [diamondRes, gemRes] = await Promise.all([
+      fetchNivoda('diamonds', 0),
+      fetchNivoda('gemstones', 0),
+    ]);
+
+    const diamonds  = (diamondRes?.data?.diamonds?.items  || []).map(d => ({ ...d, _type: 'diamond' }));
+    const gemstones = (gemRes?.data?.gemstones?.items     || []).map(g => ({ ...g, _type: gemType(g) }));
+
+    allGems = [...diamonds, ...gemstones];
+
+    if (!allGems.length) {
+      showError('No inventory available at this time. Please check back soon.');
+      return;
+    }
+
+    renderGems(activeFilter);
+  } catch (err) {
+    console.error('Nivoda fetch error:', err);
+    showError('Unable to load live inventory. Please try again shortly.');
+  } finally {
+    isLoading = false;
+  }
+}
+
 /* ── Category gem visuals ───────────────────────────────────── */
 function initCategoryGems() {
   const cats = ['diamond','ruby','emerald','sapphire','alexandrite','tanzanite'];
   cats.forEach((key, i) => {
     const el = document.getElementById(`cat-gem-${i}`);
     if (!el) return;
-    const palette = GEM_PALETTES[key] || GEM_PALETTES.diamond;
+    const palette = GEM_PALETTES[key];
     el.style.background = `radial-gradient(circle at 40% 35%, ${palette[1]}, ${palette[0]} 60%, ${palette[2]})`;
     buildFacetGem(el, palette);
   });
 }
 
-/* ── About gem visual ───────────────────────────────────────── */
 function initAboutGem() {
   const el = document.getElementById('about-facets');
   if (!el) return;
   const palette = GEM_PALETTES.diamond;
-  const parent  = el.closest('.gem-visual');
+  const parent = el.closest('.gem-visual');
   if (parent) parent.style.background = `radial-gradient(circle at 40% 35%, ${palette[1]}, ${palette[0]} 60%, ${palette[2]})`;
-  shimmerFacets(el, palette);
   for (let i = 0; i < 36; i++) {
     const f = document.createElement('div');
     f.className = 'facet';
@@ -328,15 +317,13 @@ function initAboutGem() {
     f.style.opacity = 0.1 + Math.random() * 0.6;
     el.appendChild(f);
   }
+  shimmerFacets(el, palette);
 }
 
 /* ── Sticky header ──────────────────────────────────────────── */
 function initHeader() {
   const header = document.getElementById('site-header');
-  const onScroll = () => {
-    if (window.scrollY > 60) header.classList.add('scrolled');
-    else header.classList.remove('scrolled');
-  };
+  const onScroll = () => header.classList.toggle('scrolled', window.scrollY > 60);
   window.addEventListener('scroll', onScroll, { passive: true });
   onScroll();
 }
@@ -345,13 +332,11 @@ function initHeader() {
 function initMobileNav() {
   const toggle = document.getElementById('nav-toggle');
   const nav    = document.getElementById('mobile-nav');
-  toggle.addEventListener('click', () => {
-    nav.classList.toggle('open');
-  });
+  toggle.addEventListener('click', () => nav.classList.toggle('open'));
   nav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => nav.classList.remove('open')));
 }
 
-/* ── Filter buttons ─────────────────────────────────────────── */
+/* ── Filters ────────────────────────────────────────────────── */
 function initFilters() {
   document.querySelectorAll('.filter-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -388,7 +373,6 @@ function initScrollObserver() {
       }
     });
   }, { threshold: 0.15 });
-
   targets.forEach(t => {
     t.style.opacity = '0';
     t.style.transform = 'translateY(24px)';
@@ -403,10 +387,10 @@ document.addEventListener('DOMContentLoaded', () => {
   initMobileNav();
   initAboutGem();
   initCategoryGems();
-  renderGems();
   initFilters();
   initScrollObserver();
   initContactForm();
+  loadInventory();
 
   document.getElementById('lightbox-close').addEventListener('click', closeLightbox);
   document.getElementById('lightbox-backdrop').addEventListener('click', closeLightbox);
