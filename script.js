@@ -15,30 +15,15 @@ const GEM_PALETTES = {
 };
 
 function paletteForGem(item) {
-  const cert = item.certificate || {};
-  const gem  = item.gemstone || {};
-  const shape = (cert.shape || gem.shape || '').toLowerCase();
-  const type  = (gem.type  || '').toLowerCase();
-  const color = (cert.color || gem.color || '').toLowerCase();
-
-  if (type.includes('ruby')    || color.includes('red'))    return GEM_PALETTES.ruby;
-  if (type.includes('emerald') || color.includes('green'))  return GEM_PALETTES.emerald;
-  if (type.includes('sapphire')|| color.includes('blue'))   return GEM_PALETTES.sapphire;
-  if (type.includes('alexandrite'))                          return GEM_PALETTES.alexandrite;
-  if (type.includes('tanzanite')|| color.includes('violet'))return GEM_PALETTES.tanzanite;
+  const cert  = item.diamond?.certificate || item.certificate || {};
+  const color = (cert.f_color || cert.color || '').toLowerCase();
+  if (color === 'fancy red' || color.includes('red'))    return GEM_PALETTES.ruby;
+  if (color.includes('green'))                           return GEM_PALETTES.emerald;
+  if (color.includes('blue'))                            return GEM_PALETTES.sapphire;
+  if (color.includes('violet') || color.includes('purple')) return GEM_PALETTES.tanzanite;
+  if (color.includes('yellow') || color.includes('orange')) return ['#c8a010','#f0d840','#a88008','#d8b820','#806000'];
+  if (color.includes('pink'))  return ['#c06080','#e090a8','#a04060','#d07090','#803050'];
   return GEM_PALETTES.diamond;
-}
-
-function gemType(item) {
-  const gem  = item.gemstone || {};
-  const type = (gem.type || '').toLowerCase();
-  if (type.includes('ruby'))       return 'ruby';
-  if (type.includes('emerald'))    return 'emerald';
-  if (type.includes('sapphire'))   return 'sapphire';
-  if (type.includes('alexandrite'))return 'other';
-  if (type.includes('tanzanite'))  return 'other';
-  if (gem.type)                    return 'other';
-  return 'diamond';
 }
 
 function formatPrice(price) {
@@ -47,18 +32,15 @@ function formatPrice(price) {
 }
 
 function certLabel(item) {
-  return (item.certificate?.lab || item.gemstone?.type || 'Certified').toUpperCase();
+  return (item.diamond?.certificate?.lab || item.certificate?.lab || 'Certified').toUpperCase();
 }
 
 function gemName(item) {
-  const cert = item.certificate || {};
-  const gem  = item.gemstone || {};
-  const carat = cert.carat || gem.carat || '';
-  const shape = cert.shape || gem.shape || '';
-  const color = cert.color || gem.color || '';
-  const type  = gem.type  || 'Diamond';
-  if (gem.type) return `${carat}ct ${color} ${type}`.trim();
-  return `${carat}ct ${color} ${shape} Diamond`.trim();
+  const cert = item.diamond?.certificate || item.certificate || {};
+  const carat = cert.carats || cert.carat || '';
+  const shape = cert.shape || '';
+  const color = cert.f_color || cert.color || '';
+  return `${carat}ct ${color} ${shape} Diamond`.replace(/\s+/g, ' ').trim();
 }
 
 /* ── State ──────────────────────────────────────────────────── */
@@ -162,23 +144,24 @@ function renderGems(filter = 'all') {
     card.className = 'gem-card';
     card.style.animationDelay = `${i * 0.05}s`;
 
-    const hasMedia = item.image || item.video;
+    const diam     = item.diamond || {};
+    const hasMedia = diam.image || diam.video;
     const palette  = paletteForGem(item);
     const price    = formatPrice(item.price);
     const name     = gemName(item);
     const cert     = certLabel(item);
-    const carat    = (item.certificate?.carat || item.gemstone?.carat || '—') + ' ct';
-    const origin   = item.gemstone?.origin || item.certificate?.shape || '—';
+    const carat    = (diam.certificate?.carats || '—') + ' ct';
+    const origin   = diam.certificate?.shape || '—';
 
     card.innerHTML = `
       <div class="gem-card-img">
         ${hasMedia
-          ? `<img src="${item.image || ''}" alt="${name}" style="width:100%;height:100%;object-fit:cover;" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+          ? `<img src="${diam.image || ''}" alt="${name}" style="width:100%;height:100%;object-fit:cover;" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
              <div class="gem-card-gem" id="card-gem-${item.id}" style="display:none;width:100%;height:100%;"></div>`
           : `<div class="gem-card-gem" id="card-gem-${item.id}" style="width:100%;height:100%;"></div>`
         }
         <span class="gem-card-badge">${cert}</span>
-        ${item.video ? `<a href="${item.video}" target="_blank" class="gem-video-btn" title="Watch 360° video">▶ 360°</a>` : ''}
+        ${diam.video ? `<a href="${diam.video}" target="_blank" class="gem-video-btn" title="Watch 360° video">▶ 360°</a>` : ''}
       </div>
       <div class="gem-card-body">
         <h3>${name}</h3>
@@ -208,26 +191,27 @@ function openLightbox(item) {
   const lb    = document.getElementById('lightbox');
   const bd    = document.getElementById('lightbox-backdrop');
   const gemEl = document.getElementById('lightbox-gem');
-  const cert  = item.certificate || {};
-  const gem   = item.gemstone   || {};
+  const diam  = item.diamond || {};
+  const cert  = diam.certificate || {};
   const name  = gemName(item);
 
   document.getElementById('lb-tag').textContent =
-    (cert.lab || gem.type || 'Certified').toUpperCase() + ' · ' +
-    (gem.type ? 'Gemstone' : 'Diamond');
+    (cert.lab || 'Certified').toUpperCase() + ' · Diamond';
   document.getElementById('lb-name').textContent = name;
   document.getElementById('lb-desc').textContent =
-    gem.treatment ? `Treatment: ${gem.treatment}.` : '';
+    cert.eyeclean ? 'Eye clean stone.' : '';
 
   const specs = [
-    { label: 'Carat',      val: (cert.carat || gem.carat || '—') + ' ct' },
-    { label: 'Shape',      val: cert.shape  || gem.shape  || '—' },
-    { label: 'Colour',     val: cert.color  || gem.color  || '—' },
-    { label: 'Clarity',    val: cert.clarity|| gem.clarity|| '—' },
-    { label: 'Cut',        val: cert.cut    || '—' },
-    { label: 'Certificate',val: cert.lab    || '—' },
-    { label: 'Origin',     val: gem.origin  || '—' },
-    { label: 'Price',      val: formatPrice(item.price) },
+    { label: 'Carat',       val: (cert.carats || '—') + ' ct' },
+    { label: 'Shape',       val: cert.shape   || '—' },
+    { label: 'Colour',      val: cert.f_color || cert.color || '—' },
+    { label: 'Clarity',     val: cert.clarity  || '—' },
+    { label: 'Cut',         val: cert.cut      || '—' },
+    { label: 'Polish',      val: cert.polish   || '—' },
+    { label: 'Symmetry',    val: cert.symmetry || '—' },
+    { label: 'Fluorescence',val: cert.floInt   || '—' },
+    { label: 'Certificate', val: cert.lab && cert.certNumber ? `${cert.lab} ${cert.certNumber}` : cert.lab || '—' },
+    { label: 'Price',       val: formatPrice(item.price) },
   ];
 
   document.getElementById('lb-specs').innerHTML = specs.map(s => `
@@ -238,15 +222,15 @@ function openLightbox(item) {
   `).join('');
 
   gemEl.innerHTML = '';
-  if (item.image) {
+  if (diam.image) {
     gemEl.style.background = '#111';
-    gemEl.innerHTML = `<img src="${item.image}" alt="${name}" style="width:100%;height:100%;object-fit:cover;">`;
+    gemEl.innerHTML = `<img src="${diam.image}" alt="${name}" style="width:100%;height:100%;object-fit:cover;">`;
   } else {
     buildCardGem(gemEl, paletteForGem(item));
   }
 
   const certLink = document.getElementById('lb-cert-link');
-  if (certLink) certLink.style.display = cert.number ? 'inline-block' : 'none';
+  if (certLink) certLink.style.display = cert.pdfUrl ? 'inline-block' : 'none';
 
   lb.classList.add('active');
   bd.classList.add('active');
@@ -268,15 +252,10 @@ async function loadInventory() {
   showLoading();
 
   try {
-    const [diamondRes, gemRes] = await Promise.all([
-      fetchNivoda('diamonds', 0),
-      fetchNivoda('gemstones', 0),
-    ]);
+    const diamondRes = await fetchNivoda('diamonds', 0);
 
-    const diamonds  = (diamondRes?.data?.diamonds?.items  || []).map(d => ({ ...d, _type: 'diamond' }));
-    const gemstones = (gemRes?.data?.gemstones?.items     || []).map(g => ({ ...g, _type: gemType(g) }));
-
-    allGems = [...diamonds, ...gemstones];
+    const diamonds = (diamondRes?.data?.as?.diamonds_by_query?.items || []).map(d => ({ ...d, _type: 'diamond' }));
+    allGems = diamonds;
 
     if (!allGems.length) {
       showError('No inventory available at this time. Please check back soon.');
