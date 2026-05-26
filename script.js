@@ -3,41 +3,61 @@
 const WORKER_URL = 'https://nivoda-proxy.avrahamlevene.workers.dev';
 const WORKER_TIMEOUT_MS = 25000;
 
-/* ── Placeholder catalogue (shown if live API is unavailable) ─ */
+/* ── Placeholder catalogue ──────────────────────────────────── */
 const PLACEHOLDER_GEMS = [
-  { id:'p1', price:0, _type:'diamond', _placeholder:true, diamond:{ image:null, video:null, certificate:{ lab:'GIA', certNumber:'', shape:'Round Brilliant', carats:'3.42', clarity:'IF', cut:'Excellent', polish:'Excellent', symmetry:'Excellent', color:'D', f_color:'', floInt:'None', pdfUrl:null } } },
-  { id:'p2', price:0, _type:'ruby',    _placeholder:true, diamond:{ image:null, video:null, certificate:{ lab:'Gübelin', certNumber:'', shape:'Cushion', carats:'2.18', clarity:'Eye-clean', cut:'', polish:'', symmetry:'', color:'Pigeon Blood Red', f_color:'Fancy Red', floInt:'', pdfUrl:null } } },
-  { id:'p3', price:0, _type:'emerald', _placeholder:true, diamond:{ image:null, video:null, certificate:{ lab:'AGL', certNumber:'', shape:'Emerald Cut', carats:'4.05', clarity:'Minor inclusions', cut:'', polish:'', symmetry:'', color:'Vivid Green', f_color:'Fancy Green', floInt:'', pdfUrl:null } } },
-  { id:'p4', price:0, _type:'sapphire',_placeholder:true, diamond:{ image:null, video:null, certificate:{ lab:'Gübelin', certNumber:'', shape:'Oval', carats:'5.60', clarity:'Eye-clean', cut:'', polish:'', symmetry:'', color:'Royal Blue', f_color:'Fancy Blue', floInt:'', pdfUrl:null } } },
-  { id:'p5', price:0, _type:'other',   _placeholder:true, diamond:{ image:null, video:null, certificate:{ lab:'GIA', certNumber:'', shape:'Oval', carats:'1.87', clarity:'Eye-clean', cut:'', polish:'', symmetry:'', color:'Alexandrite', f_color:'Fancy Green', floInt:'', pdfUrl:null } } },
-  { id:'p6', price:0, _type:'other',   _placeholder:true, diamond:{ image:null, video:null, certificate:{ lab:'GIA', certNumber:'', shape:'Cushion', carats:'6.30', clarity:'Loupe-clean', cut:'', polish:'', symmetry:'', color:'Vivid Violet-Blue', f_color:'Fancy Vivid Blue Violet', floInt:'', pdfUrl:null } } },
-  { id:'p7', price:0, _type:'diamond', _placeholder:true, diamond:{ image:null, video:null, certificate:{ lab:'GIA', certNumber:'', shape:'Radiant', carats:'7.14', clarity:'VS1', cut:'Excellent', polish:'Excellent', symmetry:'Excellent', color:'Fancy Intense Yellow', f_color:'Fancy Intense Yellow', floInt:'None', pdfUrl:null } } },
-  { id:'p8', price:0, _type:'sapphire',_placeholder:true, diamond:{ image:null, video:null, certificate:{ lab:'Gübelin', certNumber:'', shape:'Oval', carats:'2.94', clarity:'Eye-clean', cut:'', polish:'', symmetry:'', color:'Padparadscha', f_color:'Fancy Pink Orange', floInt:'', pdfUrl:null } } },
-  { id:'p9', price:0, _type:'ruby',    _placeholder:true, diamond:{ image:null, video:null, certificate:{ lab:'AGL', certNumber:'', shape:'Oval', carats:'1.10', clarity:'Eye-clean', cut:'', polish:'', symmetry:'', color:'Vivid Red', f_color:'Fancy Red', floInt:'', pdfUrl:null } } },
+  { id:'p1', price:0, _type:'diamond', _placeholder:true, diamond:{ image:null, video:null, certificate:{ lab:'GIA', certNumber:'7418523690', shape:'Round Brilliant', carats:'3.42', clarity:'IF', cut:'Excellent', polish:'Excellent', symmetry:'Excellent', color:'D', f_color:'', floInt:'None', pdfUrl:null } } },
+  { id:'p2', price:0, _type:'diamond', _placeholder:true, diamond:{ image:null, video:null, certificate:{ lab:'GIA', certNumber:'2467891234', shape:'Oval', carats:'2.18', clarity:'VVS1', cut:'Excellent', polish:'Excellent', symmetry:'Very Good', color:'E', f_color:'', floInt:'Faint', pdfUrl:null } } },
+  { id:'p3', price:0, _type:'diamond', _placeholder:true, diamond:{ image:null, video:null, certificate:{ lab:'IGI', certNumber:'591234567', shape:'Emerald', carats:'4.05', clarity:'VS1', cut:'Excellent', polish:'Excellent', symmetry:'Excellent', color:'F', f_color:'', floInt:'None', pdfUrl:null } } },
+  { id:'p4', price:0, _type:'diamond', _placeholder:true, diamond:{ image:null, video:null, certificate:{ lab:'GIA', certNumber:'6301982345', shape:'Cushion', carats:'5.60', clarity:'VS2', cut:'Very Good', polish:'Excellent', symmetry:'Very Good', color:'G', f_color:'', floInt:'None', pdfUrl:null } } },
+  { id:'p5', price:0, _type:'diamond', _placeholder:true, diamond:{ image:null, video:null, certificate:{ lab:'GIA', certNumber:'2159834560', shape:'Pear', carats:'1.87', clarity:'VVS2', cut:'Excellent', polish:'Excellent', symmetry:'Excellent', color:'D', f_color:'', floInt:'None', pdfUrl:null } } },
+  { id:'p6', price:0, _type:'diamond', _placeholder:true, diamond:{ image:null, video:null, certificate:{ lab:'HRD', certNumber:'230456789', shape:'Princess', carats:'2.30', clarity:'SI1', cut:'Very Good', polish:'Very Good', symmetry:'Very Good', color:'H', f_color:'', floInt:'None', pdfUrl:null } } },
+  { id:'p7', price:0, _type:'diamond', _placeholder:true, diamond:{ image:null, video:null, certificate:{ lab:'GIA', certNumber:'7814523610', shape:'Radiant', carats:'7.14', clarity:'VS1', cut:'Excellent', polish:'Excellent', symmetry:'Excellent', color:'Fancy Intense Yellow', f_color:'Fancy Intense Yellow', floInt:'None', pdfUrl:null } } },
+  { id:'p8', price:0, _type:'diamond', _placeholder:true, diamond:{ image:null, video:null, certificate:{ lab:'GIA', certNumber:'5291047382', shape:'Marquise', carats:'2.94', clarity:'VVS1', cut:'Excellent', polish:'Excellent', symmetry:'Excellent', color:'E', f_color:'', floInt:'None', pdfUrl:null } } },
+  { id:'p9', price:0, _type:'diamond', _placeholder:true, diamond:{ image:null, video:null, certificate:{ lab:'GIA', certNumber:'1023847561', shape:'Heart', carats:'3.10', clarity:'VS2', cut:'Very Good', polish:'Excellent', symmetry:'Very Good', color:'F', f_color:'', floInt:'Faint', pdfUrl:null } } },
 ];
 
-/* ── Colour palettes by gem type ───────────────────────────── */
-const GEM_PALETTES = {
-  diamond:    ['#c8dff0','#e8f4fc','#a0c8e8','#d4eaf8','#88b8d8'],
-  ruby:       ['#b01020','#e02840','#901828','#c83040','#781020'],
-  emerald:    ['#156030','#28a050','#107028','#20883e','#0a4820'],
-  sapphire:   ['#102870','#2040b0','#0c2060','#1838a0','#081848'],
-  alexandrite:['#206040','#40a070','#184830','#308060','#104028'],
-  tanzanite:  ['#301880','#5030b8','#201060','#4020a8','#180848'],
-  emerald_cut:['#156030','#28a050','#107028','#20883e','#0a4820'],
-  default:    ['#806040','#c0a060','#604020','#a08050','#402010'],
+/* ── Gem colour palettes ────────────────────────────────────── */
+const PALETTES = {
+  default: { from:'#dbeafe', to:'#93c5fd', accent:'#3b82f6' },
+  yellow:  { from:'#fef9c3', to:'#fde047', accent:'#ca8a04' },
+  pink:    { from:'#fce7f3', to:'#f9a8d4', accent:'#ec4899' },
+  blue:    { from:'#dbeafe', to:'#60a5fa', accent:'#2563eb' },
+  green:   { from:'#dcfce7', to:'#86efac', accent:'#16a34a' },
+  red:     { from:'#fee2e2', to:'#fca5a5', accent:'#dc2626' },
 };
 
-function paletteForGem(item) {
-  const cert  = item.diamond?.certificate || item.certificate || {};
-  const color = (cert.f_color || cert.color || '').toLowerCase();
-  if (color === 'fancy red' || color.includes('red'))    return GEM_PALETTES.ruby;
-  if (color.includes('green'))                           return GEM_PALETTES.emerald;
-  if (color.includes('blue'))                            return GEM_PALETTES.sapphire;
-  if (color.includes('violet') || color.includes('purple')) return GEM_PALETTES.tanzanite;
-  if (color.includes('yellow') || color.includes('orange')) return ['#c8a010','#f0d840','#a88008','#d8b820','#806000'];
-  if (color.includes('pink'))  return ['#c06080','#e090a8','#a04060','#d07090','#803050'];
-  return GEM_PALETTES.diamond;
+function getPalette(cert) {
+  const c = (cert.f_color || cert.color || '').toLowerCase();
+  if (c.includes('yellow') || c.includes('orange')) return PALETTES.yellow;
+  if (c.includes('pink') || c.includes('rose'))     return PALETTES.pink;
+  if (c.includes('blue'))                           return PALETTES.blue;
+  if (c.includes('green'))                          return PALETTES.green;
+  if (c.includes('red'))                            return PALETTES.red;
+  return PALETTES.default;
+}
+
+function buildGemVisual(container, cert) {
+  const p = getPalette(cert);
+  container.innerHTML = `
+    <div class="gem-bg" style="background:linear-gradient(135deg,${p.from},${p.to})"></div>
+    <div class="gem-shape" style="border-color:${p.accent}40;box-shadow:inset 0 0 30px ${p.accent}20,0 0 20px ${p.accent}10;background:${p.accent}15;"></div>
+  `;
+}
+
+/* ── State ──────────────────────────────────────────────────── */
+let allGems      = [];
+let filteredGems = [];
+let isListView   = false;
+let activeEnquiryStone = null;
+
+/* ── Data helpers ───────────────────────────────────────────── */
+function getCert(item)  { return item.diamond?.certificate || {}; }
+function getDiam(item)  { return item.diamond || {}; }
+
+function stoneName(item) {
+  const c = getCert(item);
+  const parts = [c.carats ? c.carats + 'ct' : null, c.color || c.f_color || null, c.shape || null, 'Diamond'].filter(Boolean);
+  return parts.join(' ');
 }
 
 function formatPrice(price, isPlaceholder) {
@@ -45,74 +65,305 @@ function formatPrice(price, isPlaceholder) {
   return '$' + Number(price).toLocaleString();
 }
 
-function certLabel(item) {
-  return (item.diamond?.certificate?.lab || item.certificate?.lab || 'Certified').toUpperCase();
-}
-
-function gemName(item) {
-  const cert = item.diamond?.certificate || item.certificate || {};
-  const carat = cert.carats || cert.carat || '';
-  const shape = cert.shape || '';
-  const color = cert.f_color || cert.color || '';
-  return `${carat}ct ${color} ${shape} Diamond`.replace(/\s+/g, ' ').trim();
-}
-
-/* ── State ──────────────────────────────────────────────────── */
-let allGems   = [];
-let activeFilter = 'all';
-let isLoading = false;
-
-/* ── CSS gem visuals ────────────────────────────────────────── */
-function shimmerFacets(grid, colors) {
-  setInterval(() => {
-    const facets = grid.querySelectorAll('.facet');
-    const idx = Math.floor(Math.random() * facets.length);
-    facets[idx].style.background = colors[Math.floor(Math.random() * colors.length)];
-    facets[idx].style.opacity = 0.1 + Math.random() * 0.7;
-  }, 180);
-}
-
-function buildFacetGem(container, colors) {
-  container.style.background = colors[0];
-  const grid = document.createElement('div');
-  grid.className = 'facet-grid';
-  for (let i = 0; i < 36; i++) {
-    const f = document.createElement('div');
-    f.className = 'facet';
-    f.style.background = colors[Math.floor(Math.random() * colors.length)];
-    f.style.opacity = 0.1 + Math.random() * 0.6;
-    grid.appendChild(f);
+/* ── Populate filter dropdowns ──────────────────────────────── */
+function populateFilters(gems) {
+  const fields = { 'f-shape': 'shape', 'f-lab': 'lab', 'f-color': 'color', 'f-clarity': 'clarity', 'f-cut': 'cut' };
+  for (const [id, field] of Object.entries(fields)) {
+    const sel = document.getElementById(id);
+    const current = sel.value;
+    const vals = [...new Set(gems.map(g => {
+      const c = getCert(g);
+      return field === 'color' ? (c.f_color || c.color || '') : c[field] || '';
+    }).filter(Boolean))].sort();
+    sel.innerHTML = '<option value="">All</option>' + vals.map(v => `<option value="${v}"${v===current?' selected':''}>${v}</option>`).join('');
   }
-  container.appendChild(grid);
-  shimmerFacets(grid, colors);
 }
 
-function buildCardGem(container, palette) {
-  container.style.background = `linear-gradient(135deg, ${palette.join(',')})`;
-  container.style.position = 'relative';
-  container.style.overflow = 'hidden';
-  const grid = document.createElement('div');
-  grid.className = 'facet-grid';
-  grid.style.opacity = '0.4';
-  for (let i = 0; i < 36; i++) {
-    const f = document.createElement('div');
-    f.className = 'facet';
-    f.style.background = palette[Math.floor(Math.random() * palette.length)];
-    f.style.opacity = 0.2 + Math.random() * 0.6;
-    grid.appendChild(f);
+/* ── Filtering ──────────────────────────────────────────────── */
+function getFilters() {
+  return {
+    shape:    document.getElementById('f-shape').value,
+    lab:      document.getElementById('f-lab').value,
+    color:    document.getElementById('f-color').value,
+    clarity:  document.getElementById('f-clarity').value,
+    cut:      document.getElementById('f-cut').value,
+    caratMin: parseFloat(document.getElementById('f-carat-min').value) || null,
+    caratMax: parseFloat(document.getElementById('f-carat-max').value) || null,
+  };
+}
+
+function applyFilters() {
+  const f = getFilters();
+  filteredGems = allGems.filter(g => {
+    const c = getCert(g);
+    const carat = parseFloat(c.carats) || 0;
+    const color = c.f_color || c.color || '';
+    if (f.shape   && c.shape   !== f.shape)   return false;
+    if (f.lab     && c.lab     !== f.lab)     return false;
+    if (f.color   && color     !== f.color)   return false;
+    if (f.clarity && c.clarity !== f.clarity) return false;
+    if (f.cut     && c.cut     !== f.cut)     return false;
+    if (f.caratMin !== null && carat < f.caratMin) return false;
+    if (f.caratMax !== null && carat > f.caratMax) return false;
+    return true;
+  });
+
+  document.getElementById('result-info').textContent =
+    filteredGems.length === allGems.length
+      ? `${allGems.length} stones`
+      : `${filteredGems.length} of ${allGems.length} stones`;
+
+  const empty = document.getElementById('empty-state');
+  const grid  = document.getElementById('inventory-grid');
+  if (!filteredGems.length) {
+    grid.innerHTML = '';
+    empty.style.display = 'block';
+  } else {
+    empty.style.display = 'none';
+    renderGrid();
   }
-  container.appendChild(grid);
-  const shape = document.createElement('div');
-  shape.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;';
-  const diamond = document.createElement('div');
-  diamond.style.cssText = `
-    width:60%;padding-top:60%;background:rgba(255,255,255,0.12);
-    transform:rotate(45deg);border:1px solid rgba(255,255,255,0.25);
-    box-shadow:inset 0 0 40px rgba(255,255,255,0.08),0 0 30px rgba(255,255,255,0.05);
+}
+
+function resetFilters() {
+  ['f-shape','f-lab','f-color','f-clarity','f-cut'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('f-carat-min').value = '';
+  document.getElementById('f-carat-max').value = '';
+  applyFilters();
+}
+
+/* ── Render ─────────────────────────────────────────────────── */
+function renderGrid() {
+  const grid = document.getElementById('inventory-grid');
+  grid.innerHTML = '';
+  grid.className = 'inventory-grid' + (isListView ? ' list-view' : '');
+
+  filteredGems.forEach((item, i) => {
+    const card = isListView ? buildListCard(item, i) : buildGridCard(item, i);
+    grid.appendChild(card);
+  });
+}
+
+function buildGridCard(item, i) {
+  const c    = getCert(item);
+  const diam = getDiam(item);
+  const name = stoneName(item);
+  const card = document.createElement('div');
+  card.className = 'stone-card';
+  card.style.animationDelay = `${Math.min(i, 12) * 0.04}s`;
+
+  card.innerHTML = `
+    <div class="card-media">
+      ${diam.image
+        ? `<img src="${diam.image}" alt="${name}" loading="lazy" onerror="this.parentElement.querySelector('.card-gem-visual').style.display='flex';this.remove();">`
+        : ''}
+      <div class="card-gem-visual" id="ggv-${item.id}" style="${diam.image ? 'display:none' : ''}"></div>
+      <span class="card-lab-badge">${c.lab || '—'}</span>
+      ${diam.video ? `<a href="${diam.video}" target="_blank" rel="noopener" class="card-video-btn" onclick="event.stopPropagation()">▶ 360°</a>` : ''}
+    </div>
+    <div class="card-body">
+      <div class="card-title">${name}</div>
+      <div class="card-specs">
+        <div class="spec-item"><span class="spec-label">Carat</span><span class="spec-value">${c.carats || '—'}</span></div>
+        <div class="spec-item"><span class="spec-label">Colour</span><span class="spec-value">${c.f_color || c.color || '—'}</span></div>
+        <div class="spec-item"><span class="spec-label">Clarity</span><span class="spec-value">${c.clarity || '—'}</span></div>
+        <div class="spec-item"><span class="spec-label">Cut</span><span class="spec-value">${c.cut || '—'}</span></div>
+        <div class="spec-item"><span class="spec-label">Polish</span><span class="spec-value">${c.polish || '—'}</span></div>
+        <div class="spec-item"><span class="spec-label">Symmetry</span><span class="spec-value">${c.symmetry || '—'}</span></div>
+      </div>
+      <div class="card-footer">
+        <span class="card-cert-ref">${c.lab || ''}${c.certNumber ? ' · ' + c.certNumber : ''}</span>
+        <div class="card-actions">
+          ${c.pdfUrl ? `<a href="${c.pdfUrl}" target="_blank" rel="noopener" class="btn-cert" title="View certificate" onclick="event.stopPropagation()">📄</a>` : ''}
+          <button class="btn-enquire" data-id="${item.id}">Enquire</button>
+        </div>
+      </div>
+    </div>
   `;
-  shape.appendChild(diamond);
-  container.appendChild(shape);
-  shimmerFacets(grid, palette);
+
+  const gemVis = card.querySelector(`#ggv-${item.id}`);
+  if (gemVis) buildGemVisual(gemVis, c);
+
+  card.addEventListener('click', (e) => {
+    if (e.target.closest('.btn-enquire, .btn-cert, .card-video-btn')) return;
+    openDetail(item);
+  });
+  card.querySelector('.btn-enquire').addEventListener('click', (e) => {
+    e.stopPropagation();
+    openEnquiry(item);
+  });
+
+  return card;
+}
+
+function buildListCard(item, i) {
+  const c    = getCert(item);
+  const diam = getDiam(item);
+  const name = stoneName(item);
+  const card = document.createElement('div');
+  card.className = 'stone-card list-card';
+  card.style.animationDelay = `${Math.min(i, 20) * 0.02}s`;
+
+  card.innerHTML = `
+    <div class="list-card-inner">
+      <div class="list-thumb">
+        ${diam.image
+          ? `<img src="${diam.image}" alt="${name}" loading="lazy" onerror="this.parentElement.querySelector('.card-gem-visual').style.display='flex';this.remove();">`
+          : ''}
+        <div class="card-gem-visual" id="lgv-${item.id}" style="${diam.image ? 'display:none' : ''}"></div>
+      </div>
+      <div class="list-info">
+        <div class="list-title">${name}</div>
+        <div class="list-specs">
+          <span class="list-spec"><strong>Carat</strong> ${c.carats || '—'}</span>
+          <span class="list-spec"><strong>Colour</strong> ${c.f_color || c.color || '—'}</span>
+          <span class="list-spec"><strong>Clarity</strong> ${c.clarity || '—'}</span>
+          <span class="list-spec"><strong>Cut</strong> ${c.cut || '—'}</span>
+          <span class="list-spec"><strong>Polish</strong> ${c.polish || '—'}</span>
+          <span class="list-spec"><strong>Symmetry</strong> ${c.symmetry || '—'}</span>
+          <span class="list-spec"><strong>Fluor</strong> ${c.floInt || '—'}</span>
+          ${c.certNumber ? `<span class="list-spec"><strong>Cert#</strong> ${c.certNumber}</span>` : ''}
+        </div>
+      </div>
+      <div class="list-actions">
+        <span class="list-lab">${c.lab || '—'}</span>
+        <div class="card-actions">
+          ${c.pdfUrl ? `<a href="${c.pdfUrl}" target="_blank" rel="noopener" class="btn-cert" title="View certificate" onclick="event.stopPropagation()">📄</a>` : ''}
+          <button class="btn-enquire" data-id="${item.id}">Enquire</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  const gemVis = card.querySelector(`#lgv-${item.id}`);
+  if (gemVis) buildGemVisual(gemVis, c);
+
+  card.addEventListener('click', (e) => {
+    if (e.target.closest('.btn-enquire, .btn-cert')) return;
+    openDetail(item);
+  });
+  card.querySelector('.btn-enquire').addEventListener('click', (e) => {
+    e.stopPropagation();
+    openEnquiry(item);
+  });
+
+  return card;
+}
+
+/* ── Loading skeletons ──────────────────────────────────────── */
+function showSkeletons() {
+  const grid = document.getElementById('inventory-grid');
+  grid.innerHTML = Array(6).fill(0).map(() => `
+    <div class="skeleton-card">
+      <div class="skeleton-media"></div>
+      <div class="skeleton-body">
+        <div class="skeleton-line skeleton-line--med"></div>
+        <div class="skeleton-line skeleton-line--short"></div>
+        <div class="skeleton-line skeleton-line--med"></div>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ── Detail modal ───────────────────────────────────────────── */
+function openDetail(item) {
+  const c    = getCert(item);
+  const diam = getDiam(item);
+  const name = stoneName(item);
+
+  document.getElementById('detail-title').textContent = name;
+
+  const media = document.getElementById('detail-media');
+  media.innerHTML = '';
+  if (diam.image) {
+    media.innerHTML = `<img src="${diam.image}" alt="${name}">`;
+  } else {
+    const vis = document.createElement('div');
+    vis.className = 'card-gem-visual';
+    buildGemVisual(vis, c);
+    media.appendChild(vis);
+  }
+
+  const specs = [
+    ['Shape',       c.shape    ],
+    ['Carats',      c.carats   ],
+    ['Colour',      c.f_color || c.color ],
+    ['Clarity',     c.clarity  ],
+    ['Cut',         c.cut      ],
+    ['Polish',      c.polish   ],
+    ['Symmetry',    c.symmetry ],
+    ['Fluorescence',c.floInt   ],
+    ['Lab',         c.lab      ],
+    ['Cert No.',    c.certNumber],
+  ];
+
+  document.getElementById('detail-specs').innerHTML = specs.map(([label, val]) => `
+    <div class="detail-spec">
+      <span class="spec-label">${label}</span>
+      <span class="spec-value">${val || '—'}</span>
+    </div>
+  `).join('');
+
+  document.getElementById('detail-actions').innerHTML = `
+    <button class="btn-primary" id="detail-enquire-btn">Enquire About This Stone</button>
+    ${c.pdfUrl ? `<a href="${c.pdfUrl}" target="_blank" rel="noopener" class="btn-secondary">📄 View Certificate</a>` : ''}
+    ${diam.video ? `<a href="${diam.video}" target="_blank" rel="noopener" class="btn-secondary">▶ 360° Video</a>` : ''}
+  `;
+
+  document.getElementById('detail-enquire-btn').addEventListener('click', () => {
+    closeDetail();
+    openEnquiry(item);
+  });
+
+  document.getElementById('detail-modal').classList.add('active');
+  document.getElementById('modal-backdrop').classList.add('active');
+  document.getElementById('detail-modal').setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeDetail() {
+  document.getElementById('detail-modal').classList.remove('active');
+  document.getElementById('modal-backdrop').classList.remove('active');
+  document.getElementById('detail-modal').setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
+}
+
+/* ── Enquiry modal ──────────────────────────────────────────── */
+function openEnquiry(item) {
+  const c    = getCert(item);
+  const name = stoneName(item);
+  activeEnquiryStone = item;
+
+  document.getElementById('modal-stone-ref').textContent =
+    `${name}${c.certNumber ? '  ·  ' + c.lab + ' ' + c.certNumber : ''}`;
+
+  document.getElementById('enquiry-modal').classList.add('active');
+  document.getElementById('modal-backdrop').classList.add('active');
+  document.getElementById('enquiry-modal').setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeEnquiry() {
+  document.getElementById('enquiry-modal').classList.remove('active');
+  document.getElementById('modal-backdrop').classList.remove('active');
+  document.getElementById('enquiry-modal').setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
+  activeEnquiryStone = null;
+}
+
+/* ── Live banner ────────────────────────────────────────────── */
+function showLiveBanner() {
+  let b = document.getElementById('live-banner');
+  if (!b) {
+    b = document.createElement('div');
+    b.id = 'live-banner';
+    b.innerHTML = '⚠ Showing catalogue preview — live inventory loading shortly';
+    document.querySelector('.main').prepend(b);
+  }
+  b.style.display = 'flex';
+}
+function hideLiveBanner() {
+  const b = document.getElementById('live-banner');
+  if (b) b.style.display = 'none';
 }
 
 /* ── Fetch from Worker ──────────────────────────────────────── */
@@ -121,295 +372,82 @@ async function fetchNivoda(page = 0) {
   const timer = setTimeout(() => controller.abort(), WORKER_TIMEOUT_MS);
   try {
     const res = await fetch(`${WORKER_URL}?page=${page}`, { signal: controller.signal });
-    if (!res.ok) throw new Error(`Worker error ${res.status}`);
+    if (!res.ok) throw new Error(`Worker ${res.status}`);
     return res.json();
   } finally {
     clearTimeout(timer);
   }
 }
 
-/* ── Live / placeholder banner ──────────────────────────────── */
-function showLiveBanner() {
-  let b = document.getElementById('live-banner');
-  if (!b) {
-    b = document.createElement('div');
-    b.id = 'live-banner';
-    b.style.cssText = 'text-align:center;padding:0.6rem 1rem;font-size:0.7rem;letter-spacing:0.12em;text-transform:uppercase;background:rgba(201,168,76,0.08);border-bottom:1px solid rgba(201,168,76,0.2);color:var(--gold);';
-    b.textContent = 'Catalogue preview — live inventory loading shortly';
-    const section = document.getElementById('collection');
-    if (section) section.prepend(b);
-  }
-  b.style.display = 'block';
-}
-function hideLiveBanner() {
-  const b = document.getElementById('live-banner');
-  if (b) b.style.display = 'none';
-}
-
-/* ── Loading state ──────────────────────────────────────────── */
-function showLoading() {
-  const grid = document.getElementById('gem-grid');
-  grid.innerHTML = `
-    <div style="grid-column:1/-1;text-align:center;padding:4rem 0;color:var(--text);">
-      <div style="font-size:0.75rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);">
-        Loading inventory…
-      </div>
-    </div>`;
-}
-
-function showError(msg) {
-  const grid = document.getElementById('gem-grid');
-  grid.innerHTML = `
-    <div style="grid-column:1/-1;text-align:center;padding:4rem 0;">
-      <div style="color:var(--text);font-size:0.85rem;">${msg}</div>
-    </div>`;
-}
-
-/* ── Render grid ────────────────────────────────────────────── */
-function renderGems(filter = 'all') {
-  activeFilter = filter;
-  const grid = document.getElementById('gem-grid');
-  grid.innerHTML = '';
-  const visible = filter === 'all' ? allGems : allGems.filter(g => g._type === filter);
-
-  if (!visible.length) {
-    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:3rem 0;color:var(--text);">No stones found in this category.</div>';
-    return;
-  }
-
-  visible.forEach((item, i) => {
-    const card = document.createElement('div');
-    card.className = 'gem-card';
-    card.style.animationDelay = `${i * 0.05}s`;
-
-    const diam     = item.diamond || {};
-    const hasMedia = diam.image || diam.video;
-    const palette  = paletteForGem(item);
-    const price    = formatPrice(item.price, item._placeholder);
-    const name     = gemName(item);
-    const cert     = certLabel(item);
-    const carat    = (diam.certificate?.carats || '—') + ' ct';
-    const origin   = diam.certificate?.shape || '—';
-
-    card.innerHTML = `
-      <div class="gem-card-img">
-        ${hasMedia
-          ? `<img src="${diam.image || ''}" alt="${name}" style="width:100%;height:100%;object-fit:cover;" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
-             <div class="gem-card-gem" id="card-gem-${item.id}" style="display:none;width:100%;height:100%;"></div>`
-          : `<div class="gem-card-gem" id="card-gem-${item.id}" style="width:100%;height:100%;"></div>`
-        }
-        <span class="gem-card-badge">${cert}</span>
-        ${diam.video ? `<a href="${diam.video}" target="_blank" class="gem-video-btn" title="Watch 360° video">▶ 360°</a>` : ''}
-      </div>
-      <div class="gem-card-body">
-        <h3>${name}</h3>
-        <div class="gem-card-meta">
-          <span>${carat}</span>
-          <span>${origin}</span>
-        </div>
-        <div class="gem-card-footer">
-          <span class="gem-price">${price}</span>
-          <span class="gem-enquire">View Details →</span>
-        </div>
-      </div>
-    `;
-    grid.appendChild(card);
-
-    if (!hasMedia || card.querySelector('img')) {
-      const gemEl = document.getElementById(`card-gem-${item.id}`);
-      if (gemEl) buildCardGem(gemEl, palette);
-    }
-
-    card.addEventListener('click', () => openLightbox(item));
-  });
-}
-
-/* ── Lightbox ───────────────────────────────────────────────── */
-function openLightbox(item) {
-  const lb    = document.getElementById('lightbox');
-  const bd    = document.getElementById('lightbox-backdrop');
-  const gemEl = document.getElementById('lightbox-gem');
-  const diam  = item.diamond || {};
-  const cert  = diam.certificate || {};
-  const name  = gemName(item);
-
-  document.getElementById('lb-tag').textContent =
-    (cert.lab || 'Certified').toUpperCase() + ' · Diamond';
-  document.getElementById('lb-name').textContent = name;
-  document.getElementById('lb-desc').textContent =
-    cert.eyeclean ? 'Eye clean stone.' : '';
-
-  const specs = [
-    { label: 'Carat',       val: (cert.carats || '—') + ' ct' },
-    { label: 'Shape',       val: cert.shape   || '—' },
-    { label: 'Colour',      val: cert.f_color || cert.color || '—' },
-    { label: 'Clarity',     val: cert.clarity  || '—' },
-    { label: 'Cut',         val: cert.cut      || '—' },
-    { label: 'Polish',      val: cert.polish   || '—' },
-    { label: 'Symmetry',    val: cert.symmetry || '—' },
-    { label: 'Fluorescence',val: cert.floInt   || '—' },
-    { label: 'Certificate', val: cert.lab && cert.certNumber ? `${cert.lab} ${cert.certNumber}` : cert.lab || '—' },
-    { label: 'Price',       val: formatPrice(item.price) },
-  ];
-
-  document.getElementById('lb-specs').innerHTML = specs.map(s => `
-    <div class="lightbox-spec">
-      <span class="spec-label">${s.label}</span>
-      <span class="spec-val">${s.val}</span>
-    </div>
-  `).join('');
-
-  gemEl.innerHTML = '';
-  if (diam.image) {
-    gemEl.style.background = '#111';
-    gemEl.innerHTML = `<img src="${diam.image}" alt="${name}" style="width:100%;height:100%;object-fit:cover;">`;
-  } else {
-    buildCardGem(gemEl, paletteForGem(item));
-  }
-
-  const certLink = document.getElementById('lb-cert-link');
-  if (certLink) certLink.style.display = cert.pdfUrl ? 'inline-block' : 'none';
-
-  lb.classList.add('active');
-  bd.classList.add('active');
-  lb.setAttribute('aria-hidden', 'false');
-  document.body.style.overflow = 'hidden';
-}
-
-function closeLightbox() {
-  document.getElementById('lightbox').classList.remove('active');
-  document.getElementById('lightbox-backdrop').classList.remove('active');
-  document.getElementById('lightbox').setAttribute('aria-hidden', 'true');
-  document.body.style.overflow = '';
-}
-
-/* ── Load all inventory ─────────────────────────────────────── */
+/* ── Load inventory ─────────────────────────────────────────── */
 async function loadInventory() {
-  if (isLoading) return;
-  isLoading = true;
-  showLoading();
-
+  showSkeletons();
   try {
-    const res = await fetchNivoda(0);
+    const res  = await fetchNivoda(0);
     const live = (res?.data?.as?.diamonds_by_query?.items || []).map(d => ({ ...d, _type: 'diamond' }));
-
     if (live.length) {
       allGems = live;
       hideLiveBanner();
     } else {
-      throw new Error('Empty response');
+      throw new Error('empty');
     }
-  } catch (err) {
-    console.info('Live inventory unavailable, showing catalogue preview.', err.message);
+  } catch {
     allGems = PLACEHOLDER_GEMS;
     showLiveBanner();
-  } finally {
-    isLoading = false;
-    renderGems(activeFilter);
   }
-}
 
-/* ── Category gem visuals ───────────────────────────────────── */
-function initCategoryGems() {
-  const cats = ['diamond','ruby','emerald','sapphire','alexandrite','tanzanite'];
-  cats.forEach((key, i) => {
-    const el = document.getElementById(`cat-gem-${i}`);
-    if (!el) return;
-    const palette = GEM_PALETTES[key];
-    el.style.background = `radial-gradient(circle at 40% 35%, ${palette[1]}, ${palette[0]} 60%, ${palette[2]})`;
-    buildFacetGem(el, palette);
-  });
-}
-
-function initAboutGem() {
-  const el = document.getElementById('about-facets');
-  if (!el) return;
-  const palette = GEM_PALETTES.diamond;
-  const parent = el.closest('.gem-visual');
-  if (parent) parent.style.background = `radial-gradient(circle at 40% 35%, ${palette[1]}, ${palette[0]} 60%, ${palette[2]})`;
-  for (let i = 0; i < 36; i++) {
-    const f = document.createElement('div');
-    f.className = 'facet';
-    f.style.background = palette[Math.floor(Math.random() * palette.length)];
-    f.style.opacity = 0.1 + Math.random() * 0.6;
-    el.appendChild(f);
-  }
-  shimmerFacets(el, palette);
-}
-
-/* ── Sticky header ──────────────────────────────────────────── */
-function initHeader() {
-  const header = document.getElementById('site-header');
-  const onScroll = () => header.classList.toggle('scrolled', window.scrollY > 60);
-  window.addEventListener('scroll', onScroll, { passive: true });
-  onScroll();
-}
-
-/* ── Mobile nav ─────────────────────────────────────────────── */
-function initMobileNav() {
-  const toggle = document.getElementById('nav-toggle');
-  const nav    = document.getElementById('mobile-nav');
-  toggle.addEventListener('click', () => nav.classList.toggle('open'));
-  nav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => nav.classList.remove('open')));
-}
-
-/* ── Filters ────────────────────────────────────────────────── */
-function initFilters() {
-  document.querySelectorAll('.filter-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      renderGems(btn.dataset.filter);
-    });
-  });
-}
-
-/* ── Contact form ───────────────────────────────────────────── */
-function initContactForm() {
-  const form    = document.getElementById('contact-form');
-  const success = document.getElementById('form-success');
-  form.addEventListener('submit', e => {
-    e.preventDefault();
-    if (!form.checkValidity()) { form.reportValidity(); return; }
-    success.classList.add('visible');
-    form.reset();
-    setTimeout(() => success.classList.remove('visible'), 6000);
-  });
-}
-
-/* ── Scroll animations ──────────────────────────────────────── */
-function initScrollObserver() {
-  if (!('IntersectionObserver' in window)) return;
-  const targets = document.querySelectorAll('.process-step, .category-card, .about-stats > div');
-  const obs = new IntersectionObserver((entries) => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        e.target.style.opacity = '1';
-        e.target.style.transform = 'translateY(0)';
-        obs.unobserve(e.target);
-      }
-    });
-  }, { threshold: 0.15 });
-  targets.forEach(t => {
-    t.style.opacity = '0';
-    t.style.transform = 'translateY(24px)';
-    t.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-    obs.observe(t);
-  });
+  document.getElementById('inventory-count').textContent = `${allGems.length} stones`;
+  populateFilters(allGems);
+  applyFilters();
 }
 
 /* ── Boot ───────────────────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded', () => {
-  initHeader();
-  initMobileNav();
-  initAboutGem();
-  initCategoryGems();
-  initFilters();
-  initScrollObserver();
-  initContactForm();
   loadInventory();
 
-  document.getElementById('lightbox-close').addEventListener('click', closeLightbox);
-  document.getElementById('lightbox-backdrop').addEventListener('click', closeLightbox);
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+  // View toggle
+  document.getElementById('view-grid').addEventListener('click', () => {
+    isListView = false;
+    document.getElementById('view-grid').classList.add('active');
+    document.getElementById('view-list').classList.remove('active');
+    renderGrid();
+  });
+  document.getElementById('view-list').addEventListener('click', () => {
+    isListView = true;
+    document.getElementById('view-list').classList.add('active');
+    document.getElementById('view-grid').classList.remove('active');
+    renderGrid();
+  });
+
+  // Filters
+  ['f-shape','f-lab','f-color','f-clarity','f-cut'].forEach(id =>
+    document.getElementById(id).addEventListener('change', applyFilters)
+  );
+  ['f-carat-min','f-carat-max'].forEach(id =>
+    document.getElementById(id).addEventListener('input', applyFilters)
+  );
+  document.getElementById('btn-reset').addEventListener('click', resetFilters);
+  document.getElementById('btn-reset-2').addEventListener('click', resetFilters);
+
+  // Modals close
+  document.getElementById('modal-backdrop').addEventListener('click', () => {
+    closeDetail(); closeEnquiry();
+  });
+  document.getElementById('modal-close').addEventListener('click', closeEnquiry);
+  document.getElementById('detail-close').addEventListener('click', closeDetail);
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { closeDetail(); closeEnquiry(); }
+  });
+
+  // Enquiry form
+  document.getElementById('enquiry-form').addEventListener('submit', e => {
+    e.preventDefault();
+    if (!e.target.checkValidity()) { e.target.reportValidity(); return; }
+    document.getElementById('eq-success').classList.add('visible');
+    e.target.reset();
+    setTimeout(() => {
+      document.getElementById('eq-success').classList.remove('visible');
+      closeEnquiry();
+    }, 3000);
+  });
 });
