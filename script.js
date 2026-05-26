@@ -1,6 +1,20 @@
 'use strict';
 
 const WORKER_URL = 'https://nivoda-proxy.avrahamlevene.workers.dev';
+const WORKER_TIMEOUT_MS = 25000;
+
+/* ── Placeholder catalogue (shown if live API is unavailable) ─ */
+const PLACEHOLDER_GEMS = [
+  { id:'p1', price:0, _type:'diamond', _placeholder:true, diamond:{ image:null, video:null, certificate:{ lab:'GIA', certNumber:'', shape:'Round Brilliant', carats:'3.42', clarity:'IF', cut:'Excellent', polish:'Excellent', symmetry:'Excellent', color:'D', f_color:'', floInt:'None', pdfUrl:null } } },
+  { id:'p2', price:0, _type:'ruby',    _placeholder:true, diamond:{ image:null, video:null, certificate:{ lab:'Gübelin', certNumber:'', shape:'Cushion', carats:'2.18', clarity:'Eye-clean', cut:'', polish:'', symmetry:'', color:'Pigeon Blood Red', f_color:'Fancy Red', floInt:'', pdfUrl:null } } },
+  { id:'p3', price:0, _type:'emerald', _placeholder:true, diamond:{ image:null, video:null, certificate:{ lab:'AGL', certNumber:'', shape:'Emerald Cut', carats:'4.05', clarity:'Minor inclusions', cut:'', polish:'', symmetry:'', color:'Vivid Green', f_color:'Fancy Green', floInt:'', pdfUrl:null } } },
+  { id:'p4', price:0, _type:'sapphire',_placeholder:true, diamond:{ image:null, video:null, certificate:{ lab:'Gübelin', certNumber:'', shape:'Oval', carats:'5.60', clarity:'Eye-clean', cut:'', polish:'', symmetry:'', color:'Royal Blue', f_color:'Fancy Blue', floInt:'', pdfUrl:null } } },
+  { id:'p5', price:0, _type:'other',   _placeholder:true, diamond:{ image:null, video:null, certificate:{ lab:'GIA', certNumber:'', shape:'Oval', carats:'1.87', clarity:'Eye-clean', cut:'', polish:'', symmetry:'', color:'Alexandrite', f_color:'Fancy Green', floInt:'', pdfUrl:null } } },
+  { id:'p6', price:0, _type:'other',   _placeholder:true, diamond:{ image:null, video:null, certificate:{ lab:'GIA', certNumber:'', shape:'Cushion', carats:'6.30', clarity:'Loupe-clean', cut:'', polish:'', symmetry:'', color:'Vivid Violet-Blue', f_color:'Fancy Vivid Blue Violet', floInt:'', pdfUrl:null } } },
+  { id:'p7', price:0, _type:'diamond', _placeholder:true, diamond:{ image:null, video:null, certificate:{ lab:'GIA', certNumber:'', shape:'Radiant', carats:'7.14', clarity:'VS1', cut:'Excellent', polish:'Excellent', symmetry:'Excellent', color:'Fancy Intense Yellow', f_color:'Fancy Intense Yellow', floInt:'None', pdfUrl:null } } },
+  { id:'p8', price:0, _type:'sapphire',_placeholder:true, diamond:{ image:null, video:null, certificate:{ lab:'Gübelin', certNumber:'', shape:'Oval', carats:'2.94', clarity:'Eye-clean', cut:'', polish:'', symmetry:'', color:'Padparadscha', f_color:'Fancy Pink Orange', floInt:'', pdfUrl:null } } },
+  { id:'p9', price:0, _type:'ruby',    _placeholder:true, diamond:{ image:null, video:null, certificate:{ lab:'AGL', certNumber:'', shape:'Oval', carats:'1.10', clarity:'Eye-clean', cut:'', polish:'', symmetry:'', color:'Vivid Red', f_color:'Fancy Red', floInt:'', pdfUrl:null } } },
+];
 
 /* ── Colour palettes by gem type ───────────────────────────── */
 const GEM_PALETTES = {
@@ -26,8 +40,8 @@ function paletteForGem(item) {
   return GEM_PALETTES.diamond;
 }
 
-function formatPrice(price) {
-  if (!price) return 'POA';
+function formatPrice(price, isPlaceholder) {
+  if (isPlaceholder || !price) return 'POA';
   return '$' + Number(price).toLocaleString();
 }
 
@@ -102,10 +116,34 @@ function buildCardGem(container, palette) {
 }
 
 /* ── Fetch from Worker ──────────────────────────────────────── */
-async function fetchNivoda(type = 'diamonds', page = 0) {
-  const res = await fetch(`${WORKER_URL}?type=${type}&page=${page}`);
-  if (!res.ok) throw new Error(`Worker error ${res.status}`);
-  return res.json();
+async function fetchNivoda(page = 0) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), WORKER_TIMEOUT_MS);
+  try {
+    const res = await fetch(`${WORKER_URL}?page=${page}`, { signal: controller.signal });
+    if (!res.ok) throw new Error(`Worker error ${res.status}`);
+    return res.json();
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/* ── Live / placeholder banner ──────────────────────────────── */
+function showLiveBanner() {
+  let b = document.getElementById('live-banner');
+  if (!b) {
+    b = document.createElement('div');
+    b.id = 'live-banner';
+    b.style.cssText = 'text-align:center;padding:0.6rem 1rem;font-size:0.7rem;letter-spacing:0.12em;text-transform:uppercase;background:rgba(201,168,76,0.08);border-bottom:1px solid rgba(201,168,76,0.2);color:var(--gold);';
+    b.textContent = 'Catalogue preview — live inventory loading shortly';
+    const section = document.getElementById('collection');
+    if (section) section.prepend(b);
+  }
+  b.style.display = 'block';
+}
+function hideLiveBanner() {
+  const b = document.getElementById('live-banner');
+  if (b) b.style.display = 'none';
 }
 
 /* ── Loading state ──────────────────────────────────────────── */
@@ -147,7 +185,7 @@ function renderGems(filter = 'all') {
     const diam     = item.diamond || {};
     const hasMedia = diam.image || diam.video;
     const palette  = paletteForGem(item);
-    const price    = formatPrice(item.price);
+    const price    = formatPrice(item.price, item._placeholder);
     const name     = gemName(item);
     const cert     = certLabel(item);
     const carat    = (diam.certificate?.carats || '—') + ' ct';
@@ -252,22 +290,22 @@ async function loadInventory() {
   showLoading();
 
   try {
-    const diamondRes = await fetchNivoda('diamonds', 0);
+    const res = await fetchNivoda(0);
+    const live = (res?.data?.as?.diamonds_by_query?.items || []).map(d => ({ ...d, _type: 'diamond' }));
 
-    const diamonds = (diamondRes?.data?.as?.diamonds_by_query?.items || []).map(d => ({ ...d, _type: 'diamond' }));
-    allGems = diamonds;
-
-    if (!allGems.length) {
-      showError('No inventory available at this time. Please check back soon.');
-      return;
+    if (live.length) {
+      allGems = live;
+      hideLiveBanner();
+    } else {
+      throw new Error('Empty response');
     }
-
-    renderGems(activeFilter);
   } catch (err) {
-    console.error('Nivoda fetch error:', err);
-    showError('Unable to load live inventory. Please try again shortly.');
+    console.info('Live inventory unavailable, showing catalogue preview.', err.message);
+    allGems = PLACEHOLDER_GEMS;
+    showLiveBanner();
   } finally {
     isLoading = false;
+    renderGems(activeFilter);
   }
 }
 
