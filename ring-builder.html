@@ -55,10 +55,12 @@
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone@7.23.9/babel.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.130.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.130.0/examples/js/environments/RoomEnvironment.js"></script>
 
   <script type="text/babel" data-presets="react">
     /** @jsxRuntime classic */
-    const { useState } = React;
+    const { useState, useRef, useEffect } = React;
 
     /* ── Data ─────────────────────────────────────────────────── */
 
@@ -667,270 +669,286 @@
       );
     }
 
-    function RingPreview({ config }) {
-      /* ── palette ── */
-      const metals = {
-        yellow: { base: "#D4A017", dark: "#9A7010", light: "#F0D060", shine: "#FFFAE0" },
-        white:  { base: "#C4C4C4", dark: "#888888", light: "#E8E8E8", shine: "#FFFFFF" },
-        rose:   { base: "#D48878", dark: "#9A5848", light: "#EEA898", shine: "#FFE8E0" },
+    /* ── Three.js ring geometry builder ──────────────────────── */
+
+    function buildRingGroup(T, config) {
+      var group = new T.Group();
+      var R = 1.2;
+
+      var mp = {
+        yellow: { color: 0xC08010, roughness: 0.14, metalness: 1.0 },
+        white:  { color: 0xB4B4B4, roughness: 0.12, metalness: 1.0 },
+        rose:   { color: 0xC06858, roughness: 0.18, metalness: 1.0 },
       };
-      const hm = metals[config.metalColor] || metals.yellow;
-      const bm = metals[config.mountingColor || config.metalColor] || hm;
-      const st = config.stoneType === "lab"
-        ? { main: "#C8D8F8", inner: "#94B8F0", table: "#A8C4F8", shine: "rgba(255,255,255,0.95)" }
-        : { main: "#F0EDE8", inner: "#D8D0C4", table: "#E8E0D8", shine: "rgba(255,255,255,0.9)" };
+      var hmP = mp[config.metalColor] || mp.yellow;
+      var bmP = mp[config.mountingColor || config.metalColor] || hmP;
+      var headMat = new T.MeshStandardMaterial(Object.assign({}, hmP));
+      var bandMat = new T.MeshStandardMaterial(Object.assign({}, bmP));
 
-      const sideStoneColor =
-        config.sideStoneType === "blackdiamond" ? "#555" :
-        config.sideStoneType === "altsapphire"  ? "#4263EB" :
-        config.sideStoneType === "altemerald"   ? "#2F9E44" :
-        config.sideStoneType === "altruby"      ? "#C92A2A" : st.main;
+      var stoneHex = config.stoneType === "lab" ? 0xC0D8FF : 0xF8F4F0;
+      var stoneMat = new T.MeshPhysicalMaterial({
+        color: stoneHex, roughness: 0.02, metalness: 0,
+        transmission: 0.92, ior: 2.42, thickness: 0.4,
+        transparent: true, opacity: 1,
+      });
+      var sideHex =
+        config.sideStoneType === "blackdiamond" ? 0x222233 :
+        config.sideStoneType === "altsapphire"  ? 0x1838C0 :
+        config.sideStoneType === "altemerald"   ? 0x186040 :
+        config.sideStoneType === "altruby"      ? 0xB81828 : stoneHex;
+      var sideMat = stoneMat.clone();
+      sideMat.color.setHex(sideHex);
 
-      const cx = 140, cy = 74;  /* stone centre */
+      /* band */
+      function addTorus(ox, tubeR, radSeg) {
+        var geo = new T.TorusGeometry(R, tubeR, radSeg || 16, 180);
+        var m = new T.Mesh(geo, bandMat);
+        m.castShadow = true;
+        if (ox) m.position.x = ox;
+        group.add(m);
+      }
+      var mt = config.mounting;
+      if      (mt === "double")     { addTorus(-0.12, 0.055, 14); addTorus(0.12, 0.055, 14); }
+      else if (mt === "knifeedge")  { addTorus(0, 0.065, 4); }
+      else if (mt === "split")      { addTorus(-0.18, 0.052, 14); addTorus(0.18, 0.052, 14); }
+      else if (mt === "tapered")    { addTorus(0, 0.10, 16); }
+      else if (mt === "squareedge") { addTorus(0, 0.09, 4); }
+      else                          { addTorus(0, 0.082, 14); }
 
-      /* ── stone shape ── */
-      function StoneGem() {
-        const s = config.stoneShape;
-        const facetLine = function(a, r1, r2) {
-          const rad = a * Math.PI / 180;
-          return { x1: cx + r1*Math.cos(rad), y1: cy + r1*Math.sin(rad), x2: cx + r2*Math.cos(rad), y2: cy + r2*Math.sin(rad) };
+      /* stone */
+      function mkStoneGeo(sx, sy, sz, det) {
+        var g = new T.OctahedronGeometry(0.30, det !== undefined ? det : 1);
+        g.scale(sx || 1, sy || 0.85, sz || 1);
+        return g;
+      }
+      var ss = config.stoneShape;
+      var sGeo =
+        ss === "oval"     ? mkStoneGeo(0.78, 0.88, 1.18, 1) :
+        ss === "cushion"  ? mkStoneGeo(1.10, 0.78, 1.10, 2) :
+        ss === "princess" ? mkStoneGeo(1.15, 0.80, 1.15, 0) :
+        ss === "emerald"  ? mkStoneGeo(0.90, 0.80, 1.42, 1) :
+        ss === "marquise" ? mkStoneGeo(0.60, 0.82, 1.55, 0) :
+        ss === "pear"     ? mkStoneGeo(0.80, 0.82, 1.30, 0) :
+                            mkStoneGeo(1.05, 0.85, 1.05, 1);
+      var stoneMesh = new T.Mesh(sGeo, stoneMat);
+      stoneMesh.position.y = R + 0.14;
+      stoneMesh.castShadow = true;
+      group.add(stoneMesh);
+
+      /* setting plate */
+      var plate = new T.Mesh(new T.CylinderGeometry(0.34, 0.29, 0.09, 16), headMat);
+      plate.position.y = R - 0.02;
+      plate.castShadow = true;
+      group.add(plate);
+
+      /* prongs / halos */
+      var headGroup = new T.Group();
+      headGroup.position.y = R;
+      var sett = config.ringHead;
+
+      function addProng(a, pr) {
+        var geo = new T.CylinderGeometry(0.034, 0.052, 0.40, 8);
+        var m = new T.Mesh(geo, headMat);
+        m.position.set(pr * Math.cos(a), 0.16, pr * Math.sin(a));
+        m.rotation.x =  Math.sin(a) * 0.32;
+        m.rotation.z = -Math.cos(a) * 0.32;
+        m.castShadow = true;
+        headGroup.add(m);
+      }
+      function addHaloRing(n, hr, gr, dy) {
+        for (var i = 0; i < n; i++) {
+          var a = i * (Math.PI * 2 / n);
+          var gem = new T.Mesh(new T.OctahedronGeometry(gr, 0), stoneMat);
+          gem.position.set(hr * Math.cos(a), dy || 0.02, hr * Math.sin(a));
+          gem.castShadow = true;
+          headGroup.add(gem);
+        }
+      }
+
+      if (sett === "4prongs" || sett === "basket" || sett === "peghead") {
+        [45, 135, 225, 315].forEach(function(d) { addProng(d * Math.PI / 180, 0.27); });
+        if (sett === "basket") {
+          var bGeo = new T.TorusGeometry(0.34, 0.020, 8, 32);
+          bGeo.rotateX(Math.PI / 2);
+          headGroup.add(new T.Mesh(bGeo, headMat));
+        }
+        if (sett === "peghead") {
+          var peg = new T.Mesh(new T.CylinderGeometry(0.045, 0.068, 0.28, 8), headMat);
+          peg.position.y = -0.48;
+          headGroup.add(peg);
+        }
+      } else if (sett === "singlehalo" || sett === "doublehalo") {
+        addProng(0, 0.27); addProng(Math.PI, 0.27);
+        addHaloRing(20, 0.44, 0.058, 0.02);
+        if (sett === "doublehalo") addHaloRing(28, 0.58, 0.046, -0.04);
+      } else if (sett === "flowerhalo") {
+        addProng(0, 0.27); addProng(Math.PI, 0.27);
+        for (var fi = 0; fi < 8; fi++) {
+          var fa = fi * Math.PI / 4;
+          var fpg = new T.OctahedronGeometry(0.07, 0);
+          fpg.scale(1.18, 0.55, 0.88);
+          var fgem = new T.Mesh(fpg, stoneMat);
+          fgem.position.set(0.44 * Math.cos(fa), 0.02, 0.44 * Math.sin(fa));
+          fgem.rotation.y = -fa;
+          fgem.castShadow = true;
+          headGroup.add(fgem);
+        }
+      } else if (sett === "crown") {
+        for (var ci = 0; ci < 6; ci++) {
+          var ca = ci * Math.PI / 3;
+          var cg = new T.CylinderGeometry(0.025, 0.050, 0.48, 6);
+          var cm = new T.Mesh(cg, headMat);
+          cm.position.set(0.27 * Math.cos(ca), 0.16, 0.27 * Math.sin(ca));
+          cm.rotation.x =  Math.sin(ca) * 0.30;
+          cm.rotation.z = -Math.cos(ca) * 0.30;
+          cm.castShadow = true;
+          headGroup.add(cm);
+        }
+      } else if (sett === "pave") {
+        addHaloRing(16, 0.40, 0.053, 0.02);
+      } else {
+        [45, 135, 225, 315].forEach(function(d) { addProng(d * Math.PI / 180, 0.27); });
+      }
+      group.add(headGroup);
+
+      /* side stones along shoulders */
+      if (config.sideSetting !== "none") {
+        var sideGeo = new T.OctahedronGeometry(0.053, 0);
+        for (var ss2 = -1; ss2 <= 1; ss2 += 2) {
+          for (var j = 1; j <= 4; j++) {
+            var sang = Math.PI / 2 + ss2 * j * 0.20;
+            var srx = Math.cos(sang), sry = Math.sin(sang);
+            var sgem = new T.Mesh(sideGeo.clone(), sideMat);
+            sgem.position.set(srx * R * 1.09, sry * R * 1.09, 0);
+            sgem.rotation.z = sang + Math.PI / 2;
+            sgem.castShadow = true;
+            group.add(sgem);
+          }
+        }
+      }
+
+      return group;
+    }
+
+    /* ── React wrapper for Three.js canvas ─────────────────── */
+
+    function RingPreview({ config }) {
+      var mountRef = useRef(null);
+      var stateRef = useRef({});
+
+      /* scene setup — once on mount */
+      useEffect(function() {
+        var T = window.THREE;
+        if (!T || !mountRef.current) return;
+
+        var W = 290, H = 300;
+        var renderer = new T.WebGLRenderer({ antialias: true });
+        renderer.setSize(W, H);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = T.PCFSoftShadowMap;
+        renderer.toneMapping = T.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.35;
+        if ("outputEncoding" in renderer) renderer.outputEncoding = 3001; /* sRGBEncoding */
+        mountRef.current.appendChild(renderer.domElement);
+
+        var scene = new T.Scene();
+        scene.background = new T.Color(0xF4F1EE);
+
+        try {
+          var pmrem = new T.PMREMGenerator(renderer);
+          var envTex = pmrem.fromScene(new T.RoomEnvironment(), 0.04).texture;
+          scene.environment = envTex;
+          pmrem.dispose();
+        } catch(e) {}
+
+        var camera = new T.PerspectiveCamera(35, W / H, 0.01, 100);
+        camera.position.set(2.2, 3.0, 5.5);
+        camera.lookAt(0, 1.3, 0);
+
+        scene.add(new T.AmbientLight(0xfff8f0, 0.55));
+        var kl = new T.DirectionalLight(0xffffff, 2.8);
+        kl.position.set(4, 9, 4); kl.castShadow = true;
+        kl.shadow.mapSize.set(1024, 1024);
+        scene.add(kl);
+        var fl = new T.DirectionalLight(0xffd5a0, 0.9);
+        fl.position.set(-5, 3, -3); scene.add(fl);
+        var bl = new T.DirectionalLight(0xffffff, 1.8);
+        bl.position.set(0, 4, -7); scene.add(bl);
+        var sp = new T.PointLight(0xffffff, 4, 18);
+        sp.position.set(0.5, 5, 2.5); scene.add(sp);
+
+        var floor = new T.Mesh(
+          new T.PlaneGeometry(20, 20),
+          new T.ShadowMaterial({ opacity: 0.18 })
+        );
+        floor.rotation.x = -Math.PI / 2;
+        floor.position.y = -1.6;
+        floor.receiveShadow = true;
+        scene.add(floor);
+
+        var dragging = false, prevX = 0, prevY = 0;
+        var canvas = renderer.domElement;
+        var onPD = function(e) { dragging = true; prevX = e.clientX; prevY = e.clientY; stateRef.current.autoSpin = false; };
+        var onPU = function()  { dragging = false; };
+        var onPM = function(e) {
+          if (!dragging || !stateRef.current.ring) return;
+          stateRef.current.ring.rotation.y += (e.clientX - prevX) * 0.013;
+          stateRef.current.ring.rotation.x = Math.max(-0.7, Math.min(0.7,
+            stateRef.current.ring.rotation.x + (e.clientY - prevY) * 0.013));
+          prevX = e.clientX; prevY = e.clientY;
         };
-        if (s === "round") {
-          return (
-            <g>
-              <circle cx={cx} cy={cy} r="27" fill={st.main} stroke={hm.dark} strokeWidth="1.2"/>
-              {[0,45,90,135,180,225,270,315].map(function(a,i) { const l=facetLine(a,27,12); return <line key={i} x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2} stroke={st.inner} strokeWidth="0.7"/>; })}
-              <circle cx={cx} cy={cy} r="12" fill={st.table} stroke={hm.dark} strokeWidth="0.7"/>
-              <circle cx={cx-8} cy={cy-8} r="6" fill={st.shine}/>
-              <circle cx={cx-2} cy={cy-14} r="3" fill={st.shine} opacity="0.7"/>
-            </g>
-          );
-        }
-        if (s === "oval") return (
-          <g>
-            <ellipse cx={cx} cy={cy} rx="22" ry="29" fill={st.main} stroke={hm.dark} strokeWidth="1.2"/>
-            {[0,45,90,135,180,225,270,315].map(function(a,i) {
-              const rad = a*Math.PI/180; const ox=22*Math.cos(rad), oy=29*Math.sin(rad); const len=Math.sqrt(ox*ox+oy*oy), sc=11/len;
-              return <line key={i} x1={cx+ox} y1={cy+oy} x2={cx+ox*sc} y2={cy+oy*sc} stroke={st.inner} strokeWidth="0.7"/>;
-            })}
-            <ellipse cx={cx} cy={cy} rx="11" ry="14" fill={st.table} stroke={hm.dark} strokeWidth="0.7"/>
-            <ellipse cx={cx-6} cy={cy-10} rx="5" ry="7" fill={st.shine}/>
-          </g>
-        );
-        if (s === "cushion") return (
-          <g>
-            <rect x={cx-24} y={cy-27} width="48" height="54" rx="12" fill={st.main} stroke={hm.dark} strokeWidth="1.2"/>
-            <line x1={cx-24} y1={cy-27} x2={cx-10} y2={cy-13} stroke={st.inner} strokeWidth="0.7"/>
-            <line x1={cx+24} y1={cy-27} x2={cx+10} y2={cy-13} stroke={st.inner} strokeWidth="0.7"/>
-            <line x1={cx+24} y1={cy+27} x2={cx+10} y2={cy+13} stroke={st.inner} strokeWidth="0.7"/>
-            <line x1={cx-24} y1={cy+27} x2={cx-10} y2={cy+13} stroke={st.inner} strokeWidth="0.7"/>
-            <rect x={cx-10} y={cy-13} width="20" height="26" rx="4" fill={st.table} stroke={hm.dark} strokeWidth="0.7"/>
-            <circle cx={cx-7} cy={cy-9} r="5.5" fill={st.shine}/>
-          </g>
-        );
-        if (s === "princess") return (
-          <g>
-            <rect x={cx-25} y={cy-25} width="50" height="50" fill={st.main} stroke={hm.dark} strokeWidth="1.2"/>
-            <line x1={cx-25} y1={cy-25} x2={cx+25} y2={cy+25} stroke={st.inner} strokeWidth="0.7"/>
-            <line x1={cx+25} y1={cy-25} x2={cx-25} y2={cy+25} stroke={st.inner} strokeWidth="0.7"/>
-            <polygon points={`${cx-25},${cy-25} ${cx+25},${cy-25} ${cx+25},${cy-25} ${cx},${cy-12} ${cx-25},${cy-25}`} fill={st.inner} opacity="0.35"/>
-            <rect x={cx-11} y={cy-11} width="22" height="22" fill={st.table} stroke={hm.dark} strokeWidth="0.7"/>
-            <circle cx={cx-8} cy={cy-8} r="5" fill={st.shine}/>
-          </g>
-        );
-        if (s === "pear") return (
-          <g>
-            <path d={"M "+cx+" "+(cy-29)+" C "+(cx-8)+" "+(cy-29)+" "+(cx-23)+" "+(cy-12)+" "+(cx-23)+" "+(cy+4)+" C "+(cx-23)+" "+(cy+18)+" "+(cx-10)+" "+(cy+29)+" "+cx+" "+(cy+29)+" C "+(cx+10)+" "+(cy+29)+" "+(cx+23)+" "+(cy+18)+" "+(cx+23)+" "+(cy+4)+" C "+(cx+23)+" "+(cy-12)+" "+(cx+8)+" "+(cy-29)+" "+cx+" "+(cy-29)+" Z"} fill={st.main} stroke={hm.dark} strokeWidth="1.2"/>
-            <line x1={cx} y1={cy-29} x2={cx} y2={cy-13} stroke={st.inner} strokeWidth="0.7"/>
-            <line x1={cx-23} y1={cy+4} x2={cx-11} y2={cy+4} stroke={st.inner} strokeWidth="0.7"/>
-            <line x1={cx+23} y1={cy+4} x2={cx+11} y2={cy+4} stroke={st.inner} strokeWidth="0.7"/>
-            <path d={"M "+cx+" "+(cy-14)+" C "+(cx-5)+" "+(cy-14)+" "+(cx-11)+" "+(cy-6)+" "+(cx-11)+" "+(cy+4)+" C "+(cx-11)+" "+(cy+14)+" "+(cx-5)+" "+(cy+19)+" "+cx+" "+(cy+19)+" C "+(cx+5)+" "+(cy+19)+" "+(cx+11)+" "+(cy+14)+" "+(cx+11)+" "+(cy+4)+" C "+(cx+11)+" "+(cy-6)+" "+(cx+5)+" "+(cy-14)+" "+cx+" "+(cy-14)+" Z"} fill={st.table} stroke={hm.dark} strokeWidth="0.7"/>
-            <circle cx={cx-6} cy={cy-16} r="5" fill={st.shine}/>
-          </g>
-        );
-        if (s === "emerald") return (
-          <g>
-            <polygon points={`${cx-12},${cy-28} ${cx+12},${cy-28} ${cx+24},${cy-14} ${cx+24},${cy+14} ${cx+12},${cy+28} ${cx-12},${cy+28} ${cx-24},${cy+14} ${cx-24},${cy-14}`} fill={st.main} stroke={hm.dark} strokeWidth="1.2"/>
-            <polygon points={`${cx-7},${cy-18} ${cx+7},${cy-18} ${cx+16},${cy-8} ${cx+16},${cy+8} ${cx+7},${cy+18} ${cx-7},${cy+18} ${cx-16},${cy+8} ${cx-16},${cy-8}`} fill={st.table} stroke={hm.dark} strokeWidth="0.7"/>
-            <polygon points={`${cx-3},${cy-10} ${cx+3},${cy-10} ${cx+8},${cy} ${cx+3},${cy+10} ${cx-3},${cy+10} ${cx-8},${cy}`} fill={st.inner} opacity="0.4"/>
-            <circle cx={cx-8} cy={cy-16} r="5" fill={st.shine}/>
-          </g>
-        );
-        if (s === "marquise") return (
-          <g>
-            <path d={"M "+cx+" "+(cy-29)+" C "+(cx-17)+" "+(cy-16)+" "+(cx-23)+" "+(cy-6)+" "+(cx-23)+" "+cy+" C "+(cx-23)+" "+(cy+6)+" "+(cx-17)+" "+(cy+16)+" "+cx+" "+(cy+29)+" C "+(cx+17)+" "+(cy+16)+" "+(cx+23)+" "+(cy+6)+" "+(cx+23)+" "+cy+" C "+(cx+23)+" "+(cy-6)+" "+(cx+17)+" "+(cy-16)+" "+cx+" "+(cy-29)+" Z"} fill={st.main} stroke={hm.dark} strokeWidth="1.2"/>
-            <line x1={cx} y1={cy-29} x2={cx} y2={cy+29} stroke={st.inner} strokeWidth="0.7"/>
-            <line x1={cx-23} y1={cy} x2={cx+23} y2={cy} stroke={st.inner} strokeWidth="0.7"/>
-            <path d={"M "+cx+" "+(cy-14)+" C "+(cx-9)+" "+(cy-8)+" "+(cx-12)+" "+(cy-3)+" "+(cx-12)+" "+cy+" C "+(cx-12)+" "+(cy+3)+" "+(cx-9)+" "+(cy+8)+" "+cx+" "+(cy+14)+" C "+(cx+9)+" "+(cy+8)+" "+(cx+12)+" "+(cy+3)+" "+(cx+12)+" "+cy+" C "+(cx+12)+" "+(cy-3)+" "+(cx+9)+" "+(cy-8)+" "+cx+" "+(cy-14)+" Z"} fill={st.table} stroke={hm.dark} strokeWidth="0.7"/>
-            <circle cx={cx-6} cy={cy-14} r="5" fill={st.shine}/>
-          </g>
-        );
-        return <circle cx={cx} cy={cy} r="26" fill={st.main} stroke={hm.dark} strokeWidth="1.2"/>;
-      }
+        canvas.addEventListener("pointerdown", onPD);
+        window.addEventListener("pointerup", onPU);
+        window.addEventListener("pointermove", onPM);
 
-      /* ── setting decorations ── */
-      function SettingDecor() {
-        const h = config.ringHead;
-        if (h === "4prongs") return (
-          <g>
-            {[{x:cx-22,y:cy-20},{x:cx+22,y:cy-20},{x:cx-22,y:cy+20},{x:cx+22,y:cy+20}].map(function(p,i) {
-              return <circle key={i} cx={p.x} cy={p.y} r="5" fill={hm.base} stroke={hm.dark} strokeWidth="1.2"/>;
-            })}
-          </g>
-        );
-        if (h === "singlehalo") {
-          const n = 18;
-          return <g>{Array.from({length:n},function(_,i){ const a=i*(360/n)*Math.PI/180; return <circle key={i} cx={cx+33*Math.cos(a)} cy={cy+38*Math.sin(a)} r="3.5" fill={st.main} stroke={hm.dark} strokeWidth="0.8"/>; })}</g>;
+        var raf;
+        function animate() {
+          raf = requestAnimationFrame(animate);
+          if (stateRef.current.autoSpin && stateRef.current.ring) {
+            stateRef.current.ring.rotation.y += 0.007;
+          }
+          renderer.render(scene, camera);
         }
-        if (h === "doublehalo") {
-          const o = Array.from({length:22},function(_,i){ const a=i*(360/22)*Math.PI/180; return {cx:cx+40*Math.cos(a),cy:cy+46*Math.sin(a)}; });
-          const n = Array.from({length:16},function(_,i){ const a=i*(360/16)*Math.PI/180; return {cx:cx+31*Math.cos(a),cy:cy+35*Math.sin(a)}; });
-          return <g>{o.map(function(d,i){ return <circle key={"o"+i} cx={d.cx} cy={d.cy} r="2.5" fill={st.inner} stroke={hm.dark} strokeWidth="0.6"/>; })}{n.map(function(d,i){ return <circle key={"n"+i} cx={d.cx} cy={d.cy} r="3.2" fill={st.main} stroke={hm.dark} strokeWidth="0.8"/>; })}</g>;
-        }
-        if (h === "flowerhalo") {
-          return <g>{Array.from({length:8},function(_,i){ const a=i*45*Math.PI/180; const px=cx+34*Math.cos(a), py=cy+38*Math.sin(a); return <ellipse key={i} cx={px} cy={py} rx="8" ry="4.5" transform={"rotate("+(i*45)+","+px+","+py+")"} fill={st.main} stroke={hm.dark} strokeWidth="0.8"/>; })}</g>;
-        }
-        if (h === "crown") {
-          return <g>{Array.from({length:6},function(_,i){ const a=i*60*Math.PI/180; const px=cx+29*Math.cos(a), py=cy+33*Math.sin(a); return <ellipse key={i} cx={px} cy={py} rx="4" ry="7.5" transform={"rotate("+(i*60)+","+px+","+py+")"} fill={hm.base} stroke={hm.dark} strokeWidth="1"/>; })}</g>;
-        }
-        if (h === "pave") {
-          return <g>{Array.from({length:14},function(_,i){ const a=i*(360/14)*Math.PI/180; return <circle key={i} cx={cx+31*Math.cos(a)} cy={cy+35*Math.sin(a)} r="4" fill={st.main} stroke={hm.dark} strokeWidth="0.8"/>; })}</g>;
-        }
-        if (h === "basket") return (
-          <g>
-            <ellipse cx={cx} cy={cy} rx="32" ry="36" fill="none" stroke={hm.base} strokeWidth="3"/>
-            <line x1={cx-32} y1={cy} x2={cx+32} y2={cy} stroke={hm.base} strokeWidth="1.5" opacity="0.5"/>
-            <line x1={cx} y1={cy-36} x2={cx} y2={cy+36} stroke={hm.base} strokeWidth="1.5" opacity="0.5"/>
-          </g>
-        );
-        if (h === "peghead") return (
-          <g>
-            <rect x={cx-7} y={cy+28} width="14" height="20" rx="6" fill={hm.base} stroke={hm.dark} strokeWidth="1.2"/>
-            <line x1={cx} y1={cy+28} x2={cx} y2={cy+48} stroke={hm.light} strokeWidth="1.5" strokeOpacity="0.6" strokeLinecap="round"/>
-          </g>
-        );
-        /* default 4 prongs */
-        return <g>{[{x:cx-22,y:cy-20},{x:cx+22,y:cy-20},{x:cx-22,y:cy+20},{x:cx+22,y:cy+20}].map(function(p,i){ return <circle key={i} cx={p.x} cy={p.y} r="4.5" fill={hm.base} stroke={hm.dark} strokeWidth="1"/>; })}</g>;
-      }
+        animate();
 
-      /* ── band arms ── */
-      function BandArms() {
-        const style = config.mounting;
-        const lp = "M 70,204 C 52,174 74,132 112,94";
-        const rp = "M 210,204 C 228,174 206,132 168,94";
-        const highlight = function(d) { return <path d={d} fill="none" stroke={bm.light} strokeWidth="3.5" strokeOpacity="0.6" strokeLinecap="round"/>; };
-        const shadow = function(d) { return <path d={d} fill="none" stroke={bm.dark} strokeWidth="18" strokeLinecap="round"/>; };
-        const base = function(d) { return <path d={d} fill="none" stroke={bm.base} strokeWidth="15" strokeLinecap="round"/>; };
+        stateRef.current = { scene: scene, camera: camera, renderer: renderer, ring: null, autoSpin: true };
 
-        if (style === "double") return (
-          <g>
-            {["M 62,204 C 44,174 68,132 108,94","M 218,204 C 236,174 212,132 172,94"].map(function(d,i){ return <path key={i} d={d} fill="none" stroke={bm.dark} strokeWidth="12" strokeLinecap="round"/>; })}
-            {["M 62,204 C 44,174 68,132 108,94","M 218,204 C 236,174 212,132 172,94"].map(function(d,i){ return <path key={"b"+i} d={d} fill="none" stroke={bm.base} strokeWidth="10" strokeLinecap="round"/>; })}
-            {["M 76,204 C 60,175 82,133 120,94","M 204,204 C 220,175 198,133 160,94"].map(function(d,i){ return <path key={"c"+i} d={d} fill="none" stroke={bm.dark} strokeWidth="12" strokeLinecap="round"/>; })}
-            {["M 76,204 C 60,175 82,133 120,94","M 204,204 C 220,175 198,133 160,94"].map(function(d,i){ return <path key={"d"+i} d={d} fill="none" stroke={bm.base} strokeWidth="10" strokeLinecap="round"/>; })}
-            {["M 62,204 C 44,174 68,132 108,94","M 218,204 C 236,174 212,132 172,94"].map(function(d,i){ return <path key={"e"+i} d={d} fill="none" stroke={bm.light} strokeWidth="2.5" strokeOpacity="0.6" strokeLinecap="round"/>; })}
-          </g>
-        );
-        if (style === "doubletwist") return (
-          <g>
-            <path d="M 62,204 C 62,168 100,148 148,100" fill="none" stroke={bm.dark} strokeWidth="14" strokeLinecap="round"/>
-            <path d="M 62,204 C 62,168 100,148 148,100" fill="none" stroke={bm.base} strokeWidth="11" strokeLinecap="round"/>
-            <path d="M 218,204 C 218,168 180,148 132,100" fill="none" stroke={bm.dark} strokeWidth="14" strokeLinecap="round"/>
-            <path d="M 218,204 C 218,168 180,148 132,100" fill="none" stroke={bm.base} strokeWidth="11" strokeLinecap="round"/>
-            <path d="M 78,204 C 78,170 116,150 128,94" fill="none" stroke={bm.base} strokeWidth="9" strokeLinecap="round"/>
-            <path d="M 202,204 C 202,170 164,150 152,94" fill="none" stroke={bm.base} strokeWidth="9" strokeLinecap="round"/>
-            <path d="M 62,204 C 62,168 100,148 148,100" fill="none" stroke={bm.light} strokeWidth="2.5" strokeOpacity="0.65" strokeLinecap="round"/>
-            <path d="M 218,204 C 218,168 180,148 132,100" fill="none" stroke={bm.light} strokeWidth="2.5" strokeOpacity="0.65" strokeLinecap="round"/>
-          </g>
-        );
-        if (style === "knifeedge") return (
-          <g>
-            <path d={lp} fill="none" stroke={bm.dark} strokeWidth="7" strokeLinecap="round"/>
-            <path d={lp} fill="none" stroke={bm.base} strokeWidth="5" strokeLinecap="round"/>
-            <path d={lp} fill="none" stroke={bm.light} strokeWidth="2.5" strokeOpacity="0.85" strokeLinecap="round"/>
-            <path d={rp} fill="none" stroke={bm.dark} strokeWidth="7" strokeLinecap="round"/>
-            <path d={rp} fill="none" stroke={bm.base} strokeWidth="5" strokeLinecap="round"/>
-            <path d={rp} fill="none" stroke={bm.light} strokeWidth="2.5" strokeOpacity="0.85" strokeLinecap="round"/>
-          </g>
-        );
-        if (style === "split") return (
-          <g>
-            <path d="M 70,204 C 55,180 68,155 88,136" fill="none" stroke={bm.dark} strokeWidth="15" strokeLinecap="round"/>
-            <path d="M 70,204 C 55,180 68,155 88,136" fill="none" stroke={bm.base} strokeWidth="12" strokeLinecap="round"/>
-            <path d="M 88,136 C 96,124 108,110 116,94" fill="none" stroke={bm.dark} strokeWidth="12" strokeLinecap="round"/>
-            <path d="M 88,136 C 100,128 112,118 124,104" fill="none" stroke={bm.dark} strokeWidth="10" strokeLinecap="round"/>
-            <path d="M 88,136 C 96,124 108,110 116,94" fill="none" stroke={bm.base} strokeWidth="9" strokeLinecap="round"/>
-            <path d="M 88,136 C 100,128 112,118 124,104" fill="none" stroke={bm.base} strokeWidth="8" strokeLinecap="round"/>
-            <path d="M 210,204 C 225,180 212,155 192,136" fill="none" stroke={bm.dark} strokeWidth="15" strokeLinecap="round"/>
-            <path d="M 210,204 C 225,180 212,155 192,136" fill="none" stroke={bm.base} strokeWidth="12" strokeLinecap="round"/>
-            <path d="M 192,136 C 184,124 172,110 164,94" fill="none" stroke={bm.dark} strokeWidth="12" strokeLinecap="round"/>
-            <path d="M 192,136 C 180,128 168,118 156,104" fill="none" stroke={bm.dark} strokeWidth="10" strokeLinecap="round"/>
-            <path d="M 192,136 C 184,124 172,110 164,94" fill="none" stroke={bm.base} strokeWidth="9" strokeLinecap="round"/>
-            <path d="M 192,136 C 180,128 168,118 156,104" fill="none" stroke={bm.base} strokeWidth="8" strokeLinecap="round"/>
-            <path d="M 70,204 C 55,180 68,155 88,136" fill="none" stroke={bm.light} strokeWidth="2.5" strokeOpacity="0.6" strokeLinecap="round"/>
-            <path d="M 210,204 C 225,180 212,155 192,136" fill="none" stroke={bm.light} strokeWidth="2.5" strokeOpacity="0.6" strokeLinecap="round"/>
-          </g>
-        );
-        if (style === "tapered") return (
-          <g>
-            <path d="M 62,204 C 44,172 66,128 109,94" fill="none" stroke={bm.dark} strokeWidth="20" strokeLinecap="round"/>
-            <path d="M 62,204 C 44,172 66,128 109,94" fill="none" stroke={bm.base} strokeWidth="17" strokeLinecap="round"/>
-            <path d="M 62,204 C 44,172 66,128 109,94" fill="none" stroke={bm.light} strokeWidth="4" strokeOpacity="0.55" strokeLinecap="round"/>
-            <path d="M 218,204 C 236,172 214,128 171,94" fill="none" stroke={bm.dark} strokeWidth="20" strokeLinecap="round"/>
-            <path d="M 218,204 C 236,172 214,128 171,94" fill="none" stroke={bm.base} strokeWidth="17" strokeLinecap="round"/>
-            <path d="M 218,204 C 236,172 214,128 171,94" fill="none" stroke={bm.light} strokeWidth="4" strokeOpacity="0.55" strokeLinecap="round"/>
-          </g>
-        );
-        if (style === "hiddenhalo") return (
-          <g>
-            {shadow(lp)}{base(lp)}{highlight(lp)}
-            {shadow(rp)}{base(rp)}{highlight(rp)}
-            {[108,118,128,152,162,172].map(function(x,i){ return <circle key={i} cx={x} cy={97} r="3.5" fill={st.main} stroke={hm.dark} strokeWidth="0.8"/>; })}
-          </g>
-        );
-        /* default: single, squareedge, contemporary, etc. */
-        return (
-          <g>
-            {shadow(lp)}{base(lp)}{highlight(lp)}
-            {shadow(rp)}{base(rp)}{highlight(rp)}
-          </g>
-        );
-      }
+        return function() {
+          cancelAnimationFrame(raf);
+          canvas.removeEventListener("pointerdown", onPD);
+          window.removeEventListener("pointerup", onPU);
+          window.removeEventListener("pointermove", onPM);
+          renderer.dispose();
+          if (mountRef.current && canvas.parentNode === mountRef.current) {
+            mountRef.current.removeChild(canvas);
+          }
+        };
+      }, []);
 
-      /* ── side stones ── */
-      function SideStones() {
-        if (config.sideSetting === "none") return null;
-        const pts = [{cx:93,cy:136},{cx:78,cy:155},{cx:66,cy:172},{cx:187,cy:136},{cx:202,cy:155},{cx:214,cy:172}];
-        return <g>{pts.map(function(p,i){ return <ellipse key={i} cx={p.cx} cy={p.cy} rx="5.5" ry="4.5" fill={sideStoneColor} stroke={bm.dark} strokeWidth="0.8" opacity="0.92"/>; })}</g>;
-      }
-
-      /* ── peekaboo stone ── */
-      function PeekabooStone() {
-        if (config.peekaboo === "none") return null;
-        if (config.peekaboo === "round") return <circle cx={cx} cy={207} r="11" fill={st.main} stroke={hm.dark} strokeWidth="1.2"/>;
-        return <rect x={cx-8} y="200" width="16" height="14" rx="2" fill={st.main} stroke={hm.dark} strokeWidth="1.2"/>;
-      }
+      /* rebuild ring geometry whenever config changes */
+      useEffect(function() {
+        var T = window.THREE;
+        var sc = stateRef.current;
+        if (!T || !sc.scene) return;
+        if (sc.ring) {
+          sc.scene.remove(sc.ring);
+          sc.ring.traverse(function(child) {
+            if (child.geometry) child.geometry.dispose();
+            if (child.material) {
+              if (Array.isArray(child.material)) child.material.forEach(function(m) { m.dispose(); });
+              else child.material.dispose();
+            }
+          });
+        }
+        var ring = buildRingGroup(T, config);
+        ring.rotation.x = 0.12;
+        sc.scene.add(ring);
+        sc.ring = ring;
+      }, [config]);
 
       return (
-        <svg width="280" height="230" viewBox="0 0 280 230" style={{ display: "block", margin: "0 auto" }}>
-          {/* base ring */}
-          <ellipse cx="140" cy="206" rx="80" ry="20" fill={bm.dark}/>
-          <ellipse cx="140" cy="204" rx="80" ry="20" fill={bm.base} stroke={bm.dark} strokeWidth="1.5"/>
-          <ellipse cx="140" cy="200" rx="80" ry="20" fill="none" stroke={bm.light} strokeWidth="1.2" strokeOpacity="0.55"/>
-          {/* band arms behind stone */}
-          <BandArms/>
-          {/* side stones */}
-          <SideStones/>
-          {/* peekaboo */}
-          <PeekabooStone/>
-          {/* setting plate behind stone */}
-          <ellipse cx={cx} cy={cy+18} rx="34" ry="16" fill={hm.base} stroke={hm.dark} strokeWidth="1.5"/>
-          <ellipse cx={cx} cy={cy+18} rx="34" ry="16" fill="none" stroke={hm.light} strokeWidth="1" strokeOpacity="0.5"/>
-          {/* setting decor (halos, extra prongs, etc.) */}
-          <SettingDecor/>
-          {/* stone gem */}
-          <StoneGem/>
-        </svg>
+        <div ref={mountRef} style={{ width: 290, height: 300, borderRadius: 10, overflow: "hidden", cursor: "grab" }}/>
       );
     }
 
