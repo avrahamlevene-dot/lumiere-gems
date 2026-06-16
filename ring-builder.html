@@ -8,30 +8,17 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <style>
-    #ring-root {
-      max-width: 1060px;
-      margin: 0 auto;
-      padding: 32px 20px 60px;
-    }
+    #ring-root { max-width: 1060px; margin: 0 auto; padding: 32px 20px 60px; }
     #ring-root * { box-sizing: border-box; }
-    #ring-root select,
-    #ring-root input[type="number"],
-    #ring-root input[type="text"] { font-family: 'Inter', sans-serif; }
-
+    #ring-root select, #ring-root input[type="number"], #ring-root input[type="text"] { font-family: 'Inter', sans-serif; }
     @media (min-width: 720px) {
-      .rb-layout {
-        display: grid;
-        grid-template-columns: 290px 1fr;
-        gap: 32px;
-        align-items: start;
-      }
+      .rb-layout { display: grid; grid-template-columns: 290px 1fr; gap: 32px; align-items: start; }
       .rb-sticky { position: sticky; top: 72px; }
     }
   </style>
 </head>
 <body>
 
-  <!-- HEADER -->
   <header class="site-header">
     <div class="header-inner">
       <div class="header-brand">
@@ -49,7 +36,6 @@
     </div>
   </header>
 
-  <!-- PAGE TITLE -->
   <div class="page-title" style="max-width:1060px;margin:0 auto;padding:0 20px;">
     <div>
       <h1>Ring Builder</h1>
@@ -57,10 +43,8 @@
     </div>
   </div>
 
-  <!-- REACT MOUNT POINT -->
   <div id="ring-root"></div>
 
-  <!-- FOOTER -->
   <footer class="site-footer">
     <div class="footer-inner">
       <span>© 2026 Lumière Gems · Ramat Gan, Israel · All stones subject to prior sale</span>
@@ -76,7 +60,7 @@
     /** @jsxRuntime classic */
     const { useState } = React;
 
-    /* ── Data ──────────────────────────────────────────────────── */
+    /* ── Data ─────────────────────────────────────────────────── */
 
     const STONE_SHAPES = [
       { id: "round",    label: "Round",    desc: "Most popular" },
@@ -88,19 +72,19 @@
       { id: "marquise", label: "Marquise", desc: "Dramatic points" },
     ];
 
-    const STONE_SIZES = ["0.5ct","0.75ct","1ct","1.25ct","1.5ct","2ct","2.5ct","3ct"];
+    const STONE_SIZES    = ["0.5ct","0.75ct","1ct","1.25ct","1.5ct","2ct","2.5ct","3ct"];
     const COLOR_GRADES   = ["D","E","F","G","H","I","J+"];
     const CLARITY_GRADES = ["FL","IF","VVS1","VVS2","VS1","VS2","SI1","SI2"];
 
     const RING_HEAD_TYPES = [
-      { id: "4prongs",    label: "4 Prongs",      desc: "Classic solitaire" },
-      { id: "basket",     label: "Basket",         desc: "Secure hold" },
-      { id: "peghead",    label: "Peg Head",       desc: "Minimal look" },
-      { id: "pave",       label: "Pavé",           desc: "Extra brilliance" },
-      { id: "singlehalo", label: "Single Halo",    desc: "Adds perceived size" },
-      { id: "doublehalo", label: "Double Halo",    desc: "Maximum sparkle" },
-      { id: "crown",      label: "Crown",          desc: "Regal elevation" },
-      { id: "flowerhalo", label: "Flower Halo",    desc: "Floral detail" },
+      { id: "4prongs",    label: "4 Prongs",   desc: "Classic solitaire" },
+      { id: "basket",     label: "Basket",      desc: "Secure hold" },
+      { id: "peghead",    label: "Peg Head",    desc: "Minimal look" },
+      { id: "pave",       label: "Pavé",        desc: "Extra brilliance" },
+      { id: "singlehalo", label: "Single Halo", desc: "Adds perceived size" },
+      { id: "doublehalo", label: "Double Halo", desc: "Maximum sparkle" },
+      { id: "crown",      label: "Crown",       desc: "Regal elevation" },
+      { id: "flowerhalo", label: "Flower Halo", desc: "Floral detail" },
     ];
 
     const MOUNTING_TYPES = [
@@ -124,12 +108,12 @@
     ];
 
     const SIDE_STONE_TYPES = [
-      { id: "natural",      label: "Natural diamond",       color: "#e8e8e8" },
-      { id: "blackdiamond", label: "Black diamond",         color: "#222" },
-      { id: "altblack",     label: "Alternating black",     color: "#555" },
-      { id: "altsapphire",  label: "Alternating sapphire",  color: "#3b5bdb" },
-      { id: "altemerald",   label: "Alternating emerald",   color: "#2f9e44" },
-      { id: "altruby",      label: "Alternating ruby",      color: "#c92a2a" },
+      { id: "natural",      label: "Natural",          color: "#e8e8e8" },
+      { id: "blackdiamond", label: "Black diamond",    color: "#333" },
+      { id: "altblack",     label: "Alt. black",       color: "#555" },
+      { id: "altsapphire",  label: "Alt. sapphire",    color: "#3b5bdb" },
+      { id: "altemerald",   label: "Alt. emerald",     color: "#2f9e44" },
+      { id: "altruby",      label: "Alt. ruby",        color: "#c92a2a" },
     ];
 
     const CARVING_TYPES = [
@@ -162,7 +146,454 @@
       { id: "serif",  label: "Serif",  sample: "Aa", style: { fontFamily: "Georgia, serif" } },
     ];
 
-    /* ── Sub-components ─────────────────────────────────────────── */
+    /* ── Icon components ──────────────────────────────────────── */
+
+    function GemShapeIcon({ id, sel, size = 44 }) {
+      const c  = sel ? "#1a56db" : "#6b7280";
+      const f  = sel ? "#dbeafe" : "#f0f4ff";
+      const fi = sel ? "#bfdbfe" : "#e5e7eb";
+      const ln = sel ? "#93c5fd" : "#d1d5db";
+      const sp = "rgba(255,255,255,0.9)";
+
+      if (id === "round") {
+        const lines = Array.from({length: 8}, function(_, i) {
+          const a = i * 45 * Math.PI / 180;
+          return { x1: 24 + 19*Math.cos(a), y1: 24 + 19*Math.sin(a), x2: 24 + 9*Math.cos(a), y2: 24 + 9*Math.sin(a) };
+        });
+        return (
+          <svg width={size} height={size} viewBox="0 0 48 48">
+            <circle cx="24" cy="24" r="19" fill={f} stroke={c} strokeWidth="1.5"/>
+            {lines.map(function(l, i) { return <line key={i} x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2} stroke={ln} strokeWidth="0.8"/>; })}
+            <circle cx="24" cy="24" r="9" fill={fi} stroke={c} strokeWidth="1"/>
+            <circle cx="17" cy="17" r="2.5" fill={sp}/>
+            <circle cx="21" cy="14" r="1.5" fill={sp} opacity="0.7"/>
+          </svg>
+        );
+      }
+      if (id === "oval") {
+        const lines = Array.from({length: 8}, function(_, i) {
+          const a = i * 45 * Math.PI / 180;
+          const ox = 13 * Math.cos(a), oy = 19 * Math.sin(a);
+          const len = Math.sqrt(ox*ox + oy*oy), sc = 7 / len;
+          return { x1: 24+ox, y1: 24+oy, x2: 24+ox*sc, y2: 24+oy*sc };
+        });
+        return (
+          <svg width={size} height={size} viewBox="0 0 48 48">
+            <ellipse cx="24" cy="24" rx="13" ry="19" fill={f} stroke={c} strokeWidth="1.5"/>
+            {lines.map(function(l, i) { return <line key={i} x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2} stroke={ln} strokeWidth="0.8"/>; })}
+            <ellipse cx="24" cy="24" rx="6" ry="9" fill={fi} stroke={c} strokeWidth="1"/>
+            <ellipse cx="19" cy="18" rx="2" ry="2.5" fill={sp}/>
+          </svg>
+        );
+      }
+      if (id === "cushion") return (
+        <svg width={size} height={size} viewBox="0 0 48 48">
+          <rect x="5" y="5" width="38" height="38" rx="9" fill={f} stroke={c} strokeWidth="1.5"/>
+          <line x1="5" y1="5" x2="17" y2="17" stroke={ln} strokeWidth="0.8"/>
+          <line x1="43" y1="5" x2="31" y2="17" stroke={ln} strokeWidth="0.8"/>
+          <line x1="5" y1="43" x2="17" y2="31" stroke={ln} strokeWidth="0.8"/>
+          <line x1="43" y1="43" x2="31" y2="31" stroke={ln} strokeWidth="0.8"/>
+          <rect x="17" y="17" width="14" height="14" rx="3" fill={fi} stroke={c} strokeWidth="1"/>
+          <circle cx="16" cy="14" r="2.5" fill={sp}/>
+        </svg>
+      );
+      if (id === "princess") return (
+        <svg width={size} height={size} viewBox="0 0 48 48">
+          <rect x="5" y="5" width="38" height="38" fill={f} stroke={c} strokeWidth="1.5"/>
+          <line x1="5" y1="5" x2="43" y2="43" stroke={ln} strokeWidth="0.8"/>
+          <line x1="43" y1="5" x2="5" y2="43" stroke={ln} strokeWidth="0.8"/>
+          <rect x="16" y="16" width="16" height="16" fill={fi} stroke={c} strokeWidth="1"/>
+          <polygon points="5,5 16,16 5,16" fill={ln} opacity="0.35"/>
+          <polygon points="43,5 32,16 43,16" fill={ln} opacity="0.35"/>
+          <polygon points="5,43 16,32 5,32" fill={ln} opacity="0.35"/>
+          <polygon points="43,43 32,32 43,32" fill={ln} opacity="0.35"/>
+          <circle cx="15" cy="13" r="2.5" fill={sp}/>
+        </svg>
+      );
+      if (id === "pear") return (
+        <svg width={size} height={size} viewBox="0 0 48 48">
+          <path d="M24 4 C13 4 6 14 6 24 C6 36 14 46 24 46 C34 46 42 36 42 24 C42 14 35 4 24 4Z" fill={f} stroke={c} strokeWidth="1.5"/>
+          <line x1="24" y1="4" x2="24" y2="18" stroke={ln} strokeWidth="0.8"/>
+          <line x1="6" y1="24" x2="17" y2="24" stroke={ln} strokeWidth="0.8"/>
+          <line x1="42" y1="24" x2="31" y2="24" stroke={ln} strokeWidth="0.8"/>
+          <path d="M24 16 C18 16 14 20 14 26 C14 33 19 38 24 38 C29 38 34 33 34 26 C34 20 30 16 24 16Z" fill={fi} stroke={c} strokeWidth="1"/>
+          <circle cx="18" cy="14" r="2.5" fill={sp}/>
+        </svg>
+      );
+      if (id === "emerald") return (
+        <svg width={size} height={size} viewBox="0 0 48 48">
+          <polygon points="14,4 34,4 44,14 44,34 34,44 14,44 4,34 4,14" fill={f} stroke={c} strokeWidth="1.5"/>
+          <polygon points="17,10 31,10 38,17 38,31 31,38 17,38 10,31 10,17" fill={fi} stroke={c} strokeWidth="1"/>
+          <polygon points="20,16 28,16 32,20 32,28 28,32 20,32 16,28 16,20" fill={f} stroke={ln} strokeWidth="0.8"/>
+          <circle cx="16" cy="12" r="2.5" fill={sp}/>
+        </svg>
+      );
+      if (id === "marquise") return (
+        <svg width={size} height={size} viewBox="0 0 48 48">
+          <path d="M24 3 C34 12 41 18 41 24 C41 30 34 36 24 45 C14 36 7 30 7 24 C7 18 14 12 24 3Z" fill={f} stroke={c} strokeWidth="1.5"/>
+          <line x1="24" y1="3" x2="24" y2="45" stroke={ln} strokeWidth="0.8"/>
+          <line x1="7" y1="24" x2="41" y2="24" stroke={ln} strokeWidth="0.8"/>
+          <path d="M24 12 C30 17 33 21 33 24 C33 27 30 31 24 36 C18 31 15 27 15 24 C15 21 18 17 24 12Z" fill={fi} stroke={c} strokeWidth="0.8"/>
+          <circle cx="18" cy="14" r="2.5" fill={sp}/>
+        </svg>
+      );
+      return null;
+    }
+
+    function SettingIcon({ id, sel, size = 44 }) {
+      const c  = sel ? "#1a56db" : "#6b7280";
+      const sf = sel ? "#dbeafe" : "#f0f4ff";
+      const mf = sel ? "#bfdbfe" : "#e5e7eb";
+      const mc = sel ? "#93c5fd" : "#d1d5db";
+      const sp = "rgba(255,255,255,0.9)";
+
+      if (id === "4prongs") return (
+        <svg width={size} height={size} viewBox="0 0 48 48">
+          <circle cx="14" cy="15" r="4" fill={mf} stroke={c} strokeWidth="1.5"/>
+          <circle cx="34" cy="15" r="4" fill={mf} stroke={c} strokeWidth="1.5"/>
+          <circle cx="14" cy="33" r="4" fill={mf} stroke={c} strokeWidth="1.5"/>
+          <circle cx="34" cy="33" r="4" fill={mf} stroke={c} strokeWidth="1.5"/>
+          <line x1="14" y1="15" x2="18" y2="20" stroke={c} strokeWidth="1.2"/>
+          <line x1="34" y1="15" x2="30" y2="20" stroke={c} strokeWidth="1.2"/>
+          <line x1="14" y1="33" x2="18" y2="28" stroke={c} strokeWidth="1.2"/>
+          <line x1="34" y1="33" x2="30" y2="28" stroke={c} strokeWidth="1.2"/>
+          <ellipse cx="24" cy="24" rx="13" ry="10" fill={sf} stroke={c} strokeWidth="1.5"/>
+          <ellipse cx="20" cy="21" rx="2.5" ry="2" fill={sp}/>
+        </svg>
+      );
+      if (id === "basket") return (
+        <svg width={size} height={size} viewBox="0 0 48 48">
+          <circle cx="24" cy="24" r="18" fill="none" stroke={mc} strokeWidth="3"/>
+          <line x1="24" y1="6" x2="24" y2="42" stroke={mc} strokeWidth="1.5"/>
+          <line x1="6" y1="24" x2="42" y2="24" stroke={mc} strokeWidth="1.5"/>
+          <line x1="11" y1="11" x2="37" y2="37" stroke={mc} strokeWidth="1"/>
+          <line x1="37" y1="11" x2="11" y2="37" stroke={mc} strokeWidth="1"/>
+          <ellipse cx="24" cy="24" rx="11" ry="9" fill={sf} stroke={c} strokeWidth="1.5"/>
+          <ellipse cx="20" cy="21" rx="2.5" ry="2" fill={sp}/>
+        </svg>
+      );
+      if (id === "peghead") return (
+        <svg width={size} height={size} viewBox="0 0 48 48">
+          <rect x="21" y="31" width="6" height="11" rx="3" fill={mf} stroke={c} strokeWidth="1.5"/>
+          <rect x="19" y="26" width="10" height="6" rx="2" fill={mf} stroke={c} strokeWidth="1"/>
+          <ellipse cx="24" cy="21" rx="15" ry="11" fill={sf} stroke={c} strokeWidth="1.5"/>
+          <ellipse cx="19" cy="18" rx="2.5" ry="2" fill={sp}/>
+        </svg>
+      );
+      if (id === "pave") {
+        const dots = Array.from({length: 12}, function(_, i) {
+          const a = i * 30 * Math.PI / 180;
+          return { cx: 24 + 15*Math.cos(a), cy: 24 + 15*Math.sin(a) };
+        });
+        return (
+          <svg width={size} height={size} viewBox="0 0 48 48">
+            {dots.map(function(d, i) { return <circle key={i} cx={d.cx} cy={d.cy} r="3" fill={mf} stroke={c} strokeWidth="1"/>; })}
+            <ellipse cx="24" cy="24" rx="9" ry="7" fill={sf} stroke={c} strokeWidth="1.5"/>
+            <ellipse cx="20" cy="21" rx="2" ry="1.5" fill={sp}/>
+          </svg>
+        );
+      }
+      if (id === "singlehalo") {
+        const n = 14;
+        const dots = Array.from({length: n}, function(_, i) {
+          const a = i * (360/n) * Math.PI / 180;
+          return { cx: 24 + 18*Math.cos(a), cy: 24 + 18*Math.sin(a) };
+        });
+        return (
+          <svg width={size} height={size} viewBox="0 0 48 48">
+            {dots.map(function(d, i) { return <circle key={i} cx={d.cx} cy={d.cy} r="2.5" fill={mf} stroke={c} strokeWidth="1"/>; })}
+            <ellipse cx="24" cy="24" rx="10" ry="8" fill={sf} stroke={c} strokeWidth="1.5"/>
+            <ellipse cx="20" cy="21" rx="2" ry="1.5" fill={sp}/>
+          </svg>
+        );
+      }
+      if (id === "doublehalo") {
+        const outer = Array.from({length: 18}, function(_, i) {
+          const a = i * 20 * Math.PI / 180;
+          return { cx: 24 + 21*Math.cos(a), cy: 24 + 21*Math.sin(a) };
+        });
+        const inner = Array.from({length: 12}, function(_, i) {
+          const a = i * 30 * Math.PI / 180;
+          return { cx: 24 + 15*Math.cos(a), cy: 24 + 15*Math.sin(a) };
+        });
+        return (
+          <svg width={size} height={size} viewBox="0 0 48 48">
+            {outer.map(function(d, i) { return <circle key={i} cx={d.cx} cy={d.cy} r="2" fill={mc} stroke={c} strokeWidth="0.8"/>; })}
+            {inner.map(function(d, i) { return <circle key={i} cx={d.cx} cy={d.cy} r="2.5" fill={mf} stroke={c} strokeWidth="1"/>; })}
+            <ellipse cx="24" cy="24" rx="8" ry="6" fill={sf} stroke={c} strokeWidth="1.5"/>
+            <ellipse cx="20" cy="21" rx="1.8" ry="1.4" fill={sp}/>
+          </svg>
+        );
+      }
+      if (id === "crown") {
+        const prongs = Array.from({length: 6}, function(_, i) {
+          const a = i * 60 * Math.PI / 180;
+          return { cx: 24 + 17*Math.cos(a), cy: 24 + 17*Math.sin(a), rot: i*60 };
+        });
+        return (
+          <svg width={size} height={size} viewBox="0 0 48 48">
+            {prongs.map(function(p, i) {
+              return <ellipse key={i} cx={p.cx} cy={p.cy} rx="3.5" ry="5" transform={"rotate(" + p.rot + "," + p.cx + "," + p.cy + ")"} fill={mf} stroke={c} strokeWidth="1.2"/>;
+            })}
+            <ellipse cx="24" cy="24" rx="10" ry="8" fill={sf} stroke={c} strokeWidth="1.5"/>
+            <ellipse cx="20" cy="21" rx="2" ry="1.5" fill={sp}/>
+          </svg>
+        );
+      }
+      if (id === "flowerhalo") {
+        const petals = Array.from({length: 8}, function(_, i) {
+          const a = i * 45 * Math.PI / 180;
+          return { cx: 24 + 16*Math.cos(a), cy: 24 + 16*Math.sin(a), rot: i*45 };
+        });
+        return (
+          <svg width={size} height={size} viewBox="0 0 48 48">
+            {petals.map(function(p, i) {
+              return <ellipse key={i} cx={p.cx} cy={p.cy} rx="5.5" ry="3" transform={"rotate(" + p.rot + "," + p.cx + "," + p.cy + ")"} fill={mf} stroke={c} strokeWidth="1"/>;
+            })}
+            <ellipse cx="24" cy="24" rx="9" ry="7" fill={sf} stroke={c} strokeWidth="1.5"/>
+            <ellipse cx="20" cy="21" rx="2" ry="1.5" fill={sp}/>
+          </svg>
+        );
+      }
+      return null;
+    }
+
+    function BandStyleIcon({ id, sel, size = 44 }) {
+      const c  = sel ? "#1a56db" : "#6b7280";
+      const mf = sel ? "#bfdbfe" : "#e5e7eb";
+      const sf = sel ? "#dbeafe" : "#f0f4ff";
+
+      if (id === "single") return (
+        <svg width={size} height={size} viewBox="0 0 48 48">
+          <rect x="4" y="17" width="40" height="14" rx="7" fill={mf} stroke={c} strokeWidth="1.5"/>
+          <line x1="9" y1="22" x2="39" y2="22" stroke="white" strokeWidth="2" strokeLinecap="round" strokeOpacity="0.7"/>
+        </svg>
+      );
+      if (id === "double") return (
+        <svg width={size} height={size} viewBox="0 0 48 48">
+          <rect x="4" y="9" width="40" height="11" rx="5.5" fill={mf} stroke={c} strokeWidth="1.5"/>
+          <rect x="4" y="28" width="40" height="11" rx="5.5" fill={mf} stroke={c} strokeWidth="1.5"/>
+          <line x1="9" y1="13" x2="39" y2="13" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeOpacity="0.7"/>
+          <line x1="9" y1="32" x2="39" y2="32" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeOpacity="0.7"/>
+        </svg>
+      );
+      if (id === "doubletwist") return (
+        <svg width={size} height={size} viewBox="0 0 48 48">
+          <path d="M4 13 C12 13 16 35 24 35 C32 35 36 13 44 13" fill="none" stroke={c} strokeWidth="8" strokeLinecap="round"/>
+          <path d="M4 35 C12 35 16 13 24 13 C32 13 36 35 44 35" fill="none" stroke={mf} strokeWidth="7" strokeLinecap="round"/>
+          <path d="M4 13 C12 13 16 35 24 35 C32 35 36 13 44 13" fill="none" stroke="white" strokeWidth="2" strokeOpacity="0.5" strokeLinecap="round"/>
+        </svg>
+      );
+      if (id === "knifeedge") return (
+        <svg width={size} height={size} viewBox="0 0 48 48">
+          <path d="M4 28 L24 14 L44 28 L24 38 Z" fill={mf} stroke={c} strokeWidth="1.5"/>
+          <line x1="4" y1="28" x2="44" y2="28" stroke="white" strokeWidth="2" strokeOpacity="0.6" strokeLinecap="round"/>
+          <line x1="4" y1="28" x2="24" y2="14" stroke="white" strokeWidth="1" strokeOpacity="0.8" strokeLinecap="round"/>
+        </svg>
+      );
+      if (id === "squareedge") return (
+        <svg width={size} height={size} viewBox="0 0 48 48">
+          <rect x="4" y="15" width="40" height="18" fill={mf} stroke={c} strokeWidth="1.5"/>
+          <line x1="4" y1="15" x2="44" y2="15" stroke="white" strokeWidth="0.8" strokeOpacity="0.5"/>
+          <line x1="4" y1="19" x2="44" y2="19" stroke="white" strokeWidth="1.5" strokeOpacity="0.6" strokeLinecap="round"/>
+        </svg>
+      );
+      if (id === "tapered") return (
+        <svg width={size} height={size} viewBox="0 0 48 48">
+          <path d="M2 11 L46 17 L46 31 L2 37 Z" fill={mf} stroke={c} strokeWidth="1.5"/>
+          <line x1="4" y1="18" x2="44" y2="22" stroke="white" strokeWidth="2" strokeOpacity="0.6" strokeLinecap="round"/>
+        </svg>
+      );
+      if (id === "contemporary") return (
+        <svg width={size} height={size} viewBox="0 0 48 48">
+          <path d="M4 20 Q10 13 18 16 Q26 19 32 13 Q38 7 44 15 L44 32 Q38 25 32 29 Q26 33 18 30 Q10 27 4 34 Z" fill={mf} stroke={c} strokeWidth="1.5"/>
+          <path d="M6 20 Q14 14 22 18 Q30 22 38 15 L42 17" fill="none" stroke="white" strokeWidth="1.5" strokeOpacity="0.55" strokeLinecap="round"/>
+        </svg>
+      );
+      if (id === "hiddenhalo") return (
+        <svg width={size} height={size} viewBox="0 0 48 48">
+          <rect x="4" y="16" width="40" height="14" rx="7" fill={mf} stroke={c} strokeWidth="1.5"/>
+          {[10,16,22,28,34,40].map(function(x) {
+            return <circle key={x} cx={x} cy="34" r="3" fill={sf} stroke={c} strokeWidth="1"/>;
+          })}
+          <line x1="9" y1="21" x2="39" y2="21" stroke="white" strokeWidth="2" strokeOpacity="0.6" strokeLinecap="round"/>
+        </svg>
+      );
+      if (id === "split") return (
+        <svg width={size} height={size} viewBox="0 0 48 48">
+          <path d="M4 19 Q14 19 24 10 Q34 19 44 19 L44 29 Q34 29 24 20 Q14 29 4 29 Z" fill={mf} stroke={c} strokeWidth="1.5"/>
+          <path d="M6 21 Q16 21 24 12 Q32 21 42 21" fill="none" stroke="white" strokeWidth="1.5" strokeOpacity="0.6" strokeLinecap="round"/>
+        </svg>
+      );
+      return null;
+    }
+
+    function SideSettingIcon({ id, sel, size = 44 }) {
+      const c  = sel ? "#1a56db" : "#6b7280";
+      const mf = sel ? "#bfdbfe" : "#e5e7eb";
+      const sf = sel ? "#dbeafe" : "#f0f4ff";
+
+      if (id === "none") return (
+        <svg width={size} height={size} viewBox="0 0 48 48">
+          <rect x="4" y="18" width="40" height="12" rx="6" fill={mf} stroke={c} strokeWidth="1.5"/>
+          <line x1="9" y1="22" x2="39" y2="22" stroke="white" strokeWidth="2" strokeOpacity="0.6" strokeLinecap="round"/>
+        </svg>
+      );
+      if (id === "channel") return (
+        <svg width={size} height={size} viewBox="0 0 48 48">
+          <rect x="4" y="16" width="40" height="16" rx="4" fill={mf} stroke={c} strokeWidth="1.5"/>
+          <line x1="4" y1="22" x2="44" y2="22" stroke={c} strokeWidth="1" strokeOpacity="0.4"/>
+          <line x1="4" y1="26" x2="44" y2="26" stroke={c} strokeWidth="1" strokeOpacity="0.4"/>
+          {[9,16,23,30,37].map(function(x) {
+            return <rect key={x} x={x-3} y="22" width="6" height="4" rx="0.5" fill={sf} stroke={c} strokeWidth="0.8"/>;
+          })}
+        </svg>
+      );
+      if (id === "pave") return (
+        <svg width={size} height={size} viewBox="0 0 48 48">
+          <rect x="4" y="16" width="40" height="16" rx="7" fill={mf} stroke={c} strokeWidth="1.5"/>
+          {[9,16,23,30,37].map(function(x) {
+            return <circle key={x} cx={x} cy="24" r="3.5" fill={sf} stroke={c} strokeWidth="1"/>;
+          })}
+        </svg>
+      );
+      if (id === "prong") return (
+        <svg width={size} height={size} viewBox="0 0 48 48">
+          <rect x="4" y="18" width="40" height="12" rx="6" fill={mf} stroke={c} strokeWidth="1.5"/>
+          {[9,16,23,30,37].map(function(x) {
+            return (
+              <g key={x}>
+                <circle cx={x} cy="24" r="4" fill={sf} stroke={c} strokeWidth="1"/>
+                <circle cx={x-2} cy="20" r="1.2" fill={mf} stroke={c} strokeWidth="0.8"/>
+                <circle cx={x+2} cy="20" r="1.2" fill={mf} stroke={c} strokeWidth="0.8"/>
+              </g>
+            );
+          })}
+        </svg>
+      );
+      if (id === "bead") return (
+        <svg width={size} height={size} viewBox="0 0 48 48">
+          <rect x="4" y="18" width="40" height="12" rx="6" fill={mf} stroke={c} strokeWidth="1.5"/>
+          {[9,16,23,30,37].map(function(x) {
+            return (
+              <g key={x}>
+                <circle cx={x} cy="24" r="4" fill={sf} stroke={c} strokeWidth="1"/>
+                <circle cx={x} cy="21" r="1" fill={mf}/>
+                <circle cx={x-2.5} cy="27" r="0.8" fill={mf}/>
+                <circle cx={x+2.5} cy="27" r="0.8" fill={mf}/>
+              </g>
+            );
+          })}
+        </svg>
+      );
+      return null;
+    }
+
+    function CarvingIcon({ id, sel, size = 44 }) {
+      const c  = sel ? "#1a56db" : "#6b7280";
+      const mf = sel ? "#bfdbfe" : "#e5e7eb";
+      const ln = sel ? "#93c5fd" : "#9ca3af";
+
+      if (id === "plain") return (
+        <svg width={size} height={size} viewBox="0 0 48 48">
+          <rect x="4" y="17" width="40" height="14" rx="7" fill={mf} stroke={c} strokeWidth="1.5"/>
+          <line x1="9" y1="22" x2="39" y2="22" stroke="white" strokeWidth="2" strokeOpacity="0.7" strokeLinecap="round"/>
+        </svg>
+      );
+      if (id === "leaf") return (
+        <svg width={size} height={size} viewBox="0 0 48 48">
+          <rect x="4" y="17" width="40" height="14" rx="7" fill={mf} stroke={c} strokeWidth="1.5"/>
+          <path d="M9 24 C12 19 16 19 18 24 C16 29 12 29 9 24 Z" fill="none" stroke={ln} strokeWidth="1.2"/>
+          <line x1="9" y1="24" x2="18" y2="24" stroke={ln} strokeWidth="0.7" strokeOpacity="0.6"/>
+          <path d="M21 24 C24 19 28 19 30 24 C28 29 24 29 21 24 Z" fill="none" stroke={ln} strokeWidth="1.2"/>
+          <line x1="21" y1="24" x2="30" y2="24" stroke={ln} strokeWidth="0.7" strokeOpacity="0.6"/>
+          <path d="M33 24 C36 19 40 20 42 24" fill="none" stroke={ln} strokeWidth="1.2" strokeLinecap="round"/>
+        </svg>
+      );
+      if (id === "scroll") return (
+        <svg width={size} height={size} viewBox="0 0 48 48">
+          <rect x="4" y="17" width="40" height="14" rx="7" fill={mf} stroke={c} strokeWidth="1.5"/>
+          <path d="M7 24 C9 20 12 20 14 24 C16 28 19 28 21 24 C23 20 26 20 28 24 C30 28 33 28 35 24 C37 20 40 21 42 24" fill="none" stroke={ln} strokeWidth="1.5" strokeLinecap="round"/>
+          <circle cx="14" cy="24" r="2" fill="none" stroke={ln} strokeWidth="0.8"/>
+          <circle cx="28" cy="24" r="2" fill="none" stroke={ln} strokeWidth="0.8"/>
+        </svg>
+      );
+      return null;
+    }
+
+    function PeekabooIcon({ id, sel, size = 44 }) {
+      const c  = sel ? "#1a56db" : "#6b7280";
+      const mf = sel ? "#bfdbfe" : "#e5e7eb";
+      const sf = sel ? "#dbeafe" : "#f0f4ff";
+
+      if (id === "none") return (
+        <svg width={size} height={size} viewBox="0 0 48 48">
+          <rect x="4" y="14" width="40" height="14" rx="7" fill={mf} stroke={c} strokeWidth="1.5"/>
+          <rect x="4" y="28" width="40" height="6" rx="3" fill={mf} stroke={c} strokeWidth="1" strokeOpacity="0.4"/>
+          <line x1="9" y1="19" x2="39" y2="19" stroke="white" strokeWidth="2" strokeOpacity="0.6" strokeLinecap="round"/>
+        </svg>
+      );
+      if (id === "round") return (
+        <svg width={size} height={size} viewBox="0 0 48 48">
+          <rect x="4" y="14" width="40" height="14" rx="7" fill={mf} stroke={c} strokeWidth="1.5"/>
+          <circle cx="24" cy="33" r="7" fill={sf} stroke={c} strokeWidth="1.5"/>
+          <circle cx="21" cy="30" r="2" fill="white" opacity="0.85"/>
+          <line x1="9" y1="19" x2="39" y2="19" stroke="white" strokeWidth="2" strokeOpacity="0.6" strokeLinecap="round"/>
+        </svg>
+      );
+      if (id === "square") return (
+        <svg width={size} height={size} viewBox="0 0 48 48">
+          <rect x="4" y="14" width="40" height="14" rx="7" fill={mf} stroke={c} strokeWidth="1.5"/>
+          <rect x="17" y="30" width="14" height="11" rx="2" fill={sf} stroke={c} strokeWidth="1.5"/>
+          <circle cx="20" cy="33" r="2" fill="white" opacity="0.85"/>
+          <line x1="9" y1="19" x2="39" y2="19" stroke="white" strokeWidth="2" strokeOpacity="0.6" strokeLinecap="round"/>
+        </svg>
+      );
+      return null;
+    }
+
+    function FinishIcon({ id, sel, size = 44 }) {
+      const c  = sel ? "#1a56db" : "#6b7280";
+      const bf = sel ? "#bfdbfe" : "#e5e7eb";
+
+      if (id === "polished") return (
+        <svg width={size} height={size} viewBox="0 0 48 48">
+          <circle cx="24" cy="24" r="19" fill={bf} stroke={c} strokeWidth="1.5"/>
+          <path d="M13 13 Q20 9 29 11" fill="none" stroke="white" strokeWidth="3.5" strokeLinecap="round" strokeOpacity="0.95"/>
+          <path d="M11 19 Q14 16 18 16" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeOpacity="0.7"/>
+          <path d="M13 13 C22 16 32 24 36 38" fill="none" stroke="white" strokeWidth="5" strokeOpacity="0.12" strokeLinecap="round"/>
+        </svg>
+      );
+      if (id === "brushed") return (
+        <svg width={size} height={size} viewBox="0 0 48 48">
+          <rect x="5" y="5" width="38" height="38" rx="6" fill={bf} stroke={c} strokeWidth="1.5"/>
+          {[10,14,18,22,26,30,34,38].map(function(y) {
+            return (
+              <g key={y}>
+                <line x1="8" y1={y} x2="40" y2={y} stroke="white" strokeWidth="1.2" strokeOpacity="0.65"/>
+                <line x1="8" y1={y} x2="40" y2={y} stroke={c} strokeWidth="0.4" strokeOpacity="0.25"/>
+              </g>
+            );
+          })}
+        </svg>
+      );
+      if (id === "matte") return (
+        <svg width={size} height={size} viewBox="0 0 48 48">
+          <rect x="5" y="5" width="38" height="38" rx="6" fill={bf} stroke={c} strokeWidth="1.5"/>
+          {Array.from({length: 30}, function(_, i) {
+            const col = i % 6, row = Math.floor(i / 6);
+            return <circle key={i} cx={11 + col*6} cy={11 + row*7} r="1.2" fill={c} opacity="0.22"/>;
+          })}
+          {Array.from({length: 25}, function(_, i) {
+            const col = i % 5, row = Math.floor(i / 5);
+            return <circle key={"b"+i} cx={14 + col*6} cy={14 + row*7} r="0.7" fill={c} opacity="0.12"/>;
+          })}
+        </svg>
+      );
+      return null;
+    }
+
+    /* ── UI primitives ─────────────────────────────────────────── */
 
     function OptionCard({ selected, onClick, children, disabled }) {
       return (
@@ -170,8 +601,8 @@
           onClick={disabled ? undefined : onClick}
           style={{
             border: selected ? "2px solid #1a56db" : "1.5px solid #e5e7eb",
-            borderRadius: 8,
-            padding: "10px 8px",
+            borderRadius: 10,
+            padding: "10px 6px",
             cursor: disabled ? "not-allowed" : "pointer",
             background: selected ? "#eff6ff" : disabled ? "#fafafa" : "#fff",
             display: "flex",
@@ -180,8 +611,8 @@
             gap: 4,
             opacity: disabled ? 0.4 : 1,
             transition: "all 0.15s",
-            minWidth: 72,
-            flex: "1 1 72px",
+            minWidth: 84,
+            flex: "1 1 84px",
           }}
         >
           {children}
@@ -190,50 +621,26 @@
     }
 
     function SectionTitle({ children }) {
-      return (
-        <h3 style={{ fontSize: 15, fontWeight: 600, color: "#111827", margin: "28px 0 4px", fontFamily: "Inter, sans-serif", letterSpacing: "-0.01em" }}>
-          {children}
-        </h3>
-      );
+      return <h3 style={{ fontSize: 15, fontWeight: 600, color: "#111827", margin: "28px 0 4px", fontFamily: "Inter, sans-serif", letterSpacing: "-0.01em" }}>{children}</h3>;
     }
 
     function SubLabel({ children }) {
-      return (
-        <p style={{ fontSize: 11, color: "#6b7280", margin: "12px 0 8px", fontFamily: "Inter, sans-serif", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 }}>
-          {children}
-        </p>
-      );
+      return <p style={{ fontSize: 11, color: "#6b7280", margin: "12px 0 8px", fontFamily: "Inter, sans-serif", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 }}>{children}</p>;
     }
 
     function PillToggle({ options, value, onChange }) {
       return (
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 16 }}>
-          {options.map((opt) => (
-            <button
-              key={opt.id}
-              onClick={() => onChange(opt.id)}
-              style={{
-                padding: "7px 16px",
-                borderRadius: 20,
-                border: value === opt.id ? "2px solid #1a56db" : "1.5px solid #d1d5db",
-                background: value === opt.id ? "#1a56db" : "#fff",
-                color: value === opt.id ? "#fff" : "#374151",
-                fontWeight: 500,
-                fontSize: 13,
-                cursor: "pointer",
-                transition: "all 0.15s",
-                display: "flex",
-                alignItems: "center",
-                gap: 6,
-                fontFamily: "Inter, sans-serif",
-              }}
-            >
-              {opt.dot && (
-                <span style={{ width: 10, height: 10, borderRadius: "50%", background: opt.dot, border: "1px solid rgba(0,0,0,0.1)", display: "inline-block" }} />
-              )}
-              {opt.label}
-            </button>
-          ))}
+          {options.map(function(opt) {
+            const active = value === opt.id;
+            return (
+              <button key={opt.id} onClick={function() { onChange(opt.id); }}
+                style={{ padding: "7px 16px", borderRadius: 20, border: active ? "2px solid #1a56db" : "1.5px solid #d1d5db", background: active ? "#1a56db" : "#fff", color: active ? "#fff" : "#374151", fontWeight: 500, fontSize: 13, cursor: "pointer", transition: "all 0.15s", display: "flex", alignItems: "center", gap: 6, fontFamily: "Inter, sans-serif" }}>
+                {opt.dot && <span style={{ width: 10, height: 10, borderRadius: "50%", background: opt.dot, border: "1px solid rgba(0,0,0,0.1)", display: "inline-block" }}/>}
+                {opt.label}
+              </button>
+            );
+          })}
         </div>
       );
     }
@@ -246,157 +653,84 @@
             <span style={{ fontSize: 13, fontWeight: 600, color: "#1a56db", fontFamily: "Inter, sans-serif" }}>{value}</span>
           </div>
           <div style={{ display: "flex", gap: 4 }}>
-            {options.map((g) => (
-              <button
-                key={g}
-                onClick={() => onChange(g)}
-                style={{
-                  flex: 1,
-                  padding: "6px 2px",
-                  borderRadius: 6,
-                  border: value === g ? "2px solid #1a56db" : "1.5px solid #e5e7eb",
-                  background: value === g ? "#1a56db" : "#fff",
-                  color: value === g ? "#fff" : "#374151",
-                  fontWeight: 600,
-                  fontSize: 11,
-                  cursor: "pointer",
-                  fontFamily: "Inter, sans-serif",
-                  transition: "all 0.15s",
-                  minWidth: 0,
-                }}
-              >
-                {g}
-              </button>
-            ))}
+            {options.map(function(g) {
+              const active = value === g;
+              return (
+                <button key={g} onClick={function() { onChange(g); }}
+                  style={{ flex: 1, padding: "6px 2px", borderRadius: 6, border: active ? "2px solid #1a56db" : "1.5px solid #e5e7eb", background: active ? "#1a56db" : "#fff", color: active ? "#fff" : "#374151", fontWeight: 600, fontSize: 11, cursor: "pointer", fontFamily: "Inter, sans-serif", transition: "all 0.15s", minWidth: 0 }}>
+                  {g}
+                </button>
+              );
+            })}
           </div>
         </div>
       );
     }
 
-    function ShapeIcon({ id, size = 28 }) {
-      const s = { fill: "none", stroke: "currentColor", strokeWidth: "2" };
-      const shapes = {
-        round: (
-          <svg width={size} height={size} viewBox="0 0 40 40">
-            <circle cx="20" cy="20" r="14" {...s} />
-            <circle cx="20" cy="20" r="8" {...s} strokeWidth="1" strokeDasharray="2 2" opacity="0.4"/>
-          </svg>
-        ),
-        oval: (
-          <svg width={size} height={size} viewBox="0 0 40 40">
-            <ellipse cx="20" cy="20" rx="10" ry="15" {...s} />
-          </svg>
-        ),
-        cushion: (
-          <svg width={size} height={size} viewBox="0 0 40 40">
-            <rect x="8" y="8" width="24" height="24" rx="6" {...s} />
-          </svg>
-        ),
-        princess: (
-          <svg width={size} height={size} viewBox="0 0 40 40">
-            <rect x="9" y="9" width="22" height="22" rx="1" {...s} />
-            <line x1="9" y1="9" x2="31" y2="31" stroke="currentColor" strokeWidth="1" opacity="0.3"/>
-            <line x1="31" y1="9" x2="9" y2="31" stroke="currentColor" strokeWidth="1" opacity="0.3"/>
-          </svg>
-        ),
-        pear: (
-          <svg width={size} height={size} viewBox="0 0 40 40">
-            <path d="M20 8 C10 8 8 18 8 24 C8 32 14 36 20 36 C26 36 32 32 32 24 C32 18 30 8 20 8Z" {...s} />
-          </svg>
-        ),
-        emerald: (
-          <svg width={size} height={size} viewBox="0 0 40 40">
-            <rect x="7" y="12" width="26" height="16" rx="2" {...s} />
-            <rect x="11" y="15" width="18" height="10" {...s} strokeWidth="1" opacity="0.4"/>
-          </svg>
-        ),
-        marquise: (
-          <svg width={size} height={size} viewBox="0 0 40 40">
-            <path d="M20 6 C30 15 32 25 20 34 C8 25 10 15 20 6Z" {...s} />
-          </svg>
-        ),
-      };
-      return shapes[id] || null;
-    }
-
     function RingPreview({ config }) {
-      const metalColor = config.metalColor === "yellow" ? "#D4A017" : config.metalColor === "rose" ? "#E8946A" : "#C8C8C8";
-      const stoneColor = config.stoneType === "lab" ? "#c8d8f8" : "#f0f0f0";
+      const mc = config.metalColor === "yellow" ? "#D4A017" : config.metalColor === "rose" ? "#E8946A" : "#C8C8C8";
+      const sc = config.stoneType === "lab" ? "#c8d8f8" : "#f0f0f0";
       return (
         <svg width="240" height="190" viewBox="0 0 260 200" style={{ display: "block", margin: "0 auto" }}>
-          <ellipse cx="130" cy="170" rx="70" ry="18" fill={metalColor} opacity="0.7" />
-          <rect x="70" y="80" width="120" height="90" rx="4" fill={metalColor} />
-          <rect x="80" y="75" width="100" height="95" rx="4" fill={metalColor} opacity="0.5" />
-          <path d="M70 140 Q50 160 60 175 Q80 185 130 188 Q180 185 200 175 Q210 160 190 140" fill={metalColor} />
-          <rect x="112" y="54" width="8" height="30" rx="3" fill={metalColor} />
-          <rect x="140" y="54" width="8" height="30" rx="3" fill={metalColor} />
-          <rect x="112" y="54" width="8" height="30" rx="3" fill={metalColor} transform="rotate(-20 116 80)" />
-          <rect x="140" y="54" width="8" height="30" rx="3" fill={metalColor} transform="rotate(20 144 80)" />
-          <ellipse cx="130" cy="68" rx="30" ry="28" fill={stoneColor} opacity="0.95" />
-          <ellipse cx="130" cy="68" rx="30" ry="28" fill="none" stroke={metalColor} strokeWidth="2" />
-          <line x1="130" y1="42" x2="130" y2="94" stroke="white" strokeWidth="0.5" opacity="0.5" />
-          <line x1="102" y1="68" x2="158" y2="68" stroke="white" strokeWidth="0.5" opacity="0.5" />
-          <line x1="109" y1="48" x2="151" y2="88" stroke="white" strokeWidth="0.5" opacity="0.3" />
-          <line x1="151" y1="48" x2="109" y2="88" stroke="white" strokeWidth="0.5" opacity="0.3" />
-          <circle cx="117" cy="55" r="3" fill="white" opacity="0.8" />
-          <circle cx="125" cy="50" r="2" fill="white" opacity="0.6" />
+          <ellipse cx="130" cy="170" rx="70" ry="18" fill={mc} opacity="0.7"/>
+          <rect x="70" y="80" width="120" height="90" rx="4" fill={mc}/>
+          <rect x="80" y="75" width="100" height="95" rx="4" fill={mc} opacity="0.5"/>
+          <path d="M70 140 Q50 160 60 175 Q80 185 130 188 Q180 185 200 175 Q210 160 190 140" fill={mc}/>
+          <rect x="112" y="54" width="8" height="30" rx="3" fill={mc}/>
+          <rect x="140" y="54" width="8" height="30" rx="3" fill={mc}/>
+          <rect x="112" y="54" width="8" height="30" rx="3" fill={mc} transform="rotate(-20 116 80)"/>
+          <rect x="140" y="54" width="8" height="30" rx="3" fill={mc} transform="rotate(20 144 80)"/>
+          <ellipse cx="130" cy="68" rx="30" ry="28" fill={sc} opacity="0.95"/>
+          <ellipse cx="130" cy="68" rx="30" ry="28" fill="none" stroke={mc} strokeWidth="2"/>
+          <line x1="130" y1="42" x2="130" y2="94" stroke="white" strokeWidth="0.5" opacity="0.5"/>
+          <line x1="102" y1="68" x2="158" y2="68" stroke="white" strokeWidth="0.5" opacity="0.5"/>
+          <line x1="109" y1="48" x2="151" y2="88" stroke="white" strokeWidth="0.5" opacity="0.3"/>
+          <line x1="151" y1="48" x2="109" y2="88" stroke="white" strokeWidth="0.5" opacity="0.3"/>
+          <circle cx="117" cy="55" r="3" fill="white" opacity="0.8"/>
+          <circle cx="125" cy="50" r="2" fill="white" opacity="0.6"/>
           {config.sideSetting !== "none" && (
             <>
-              {[84, 93, 102].map((x, i) => (
-                <ellipse key={i} cx={x} cy={145} rx="5" ry="4" fill={stoneColor} opacity="0.8" stroke={metalColor} strokeWidth="0.5" />
-              ))}
-              {[158, 167, 176].map((x, i) => (
-                <ellipse key={i} cx={x} cy={145} rx="5" ry="4" fill={stoneColor} opacity="0.8" stroke={metalColor} strokeWidth="0.5" />
-              ))}
+              {[84,93,102].map(function(x, i) { return <ellipse key={i} cx={x} cy={145} rx="5" ry="4" fill={sc} opacity="0.8" stroke={mc} strokeWidth="0.5"/>; })}
+              {[158,167,176].map(function(x, i) { return <ellipse key={i} cx={x} cy={145} rx="5" ry="4" fill={sc} opacity="0.8" stroke={mc} strokeWidth="0.5"/>; })}
             </>
           )}
         </svg>
       );
     }
 
-    /* ── Main configurator ──────────────────────────────────────── */
+    /* ── Main configurator ─────────────────────────────────────── */
 
     function RingConfigurator() {
       const [config, setConfig] = useState({
-        stoneShape:     "round",
-        stoneType:      "lab",
-        stoneSize:      "1ct",
-        stoneColor:     "F",
-        stoneClarity:   "VS1",
-        ringHead:       "4prongs",
-        mounting:       "single",
-        sideSetting:    "none",
-        sideStoneType:  "natural",
-        mountingLength: "Half",
-        peekaboo:       "none",
-        carving:        "plain",
-        metalType:      "gold",
-        metalQuality:   "18KT",
-        metalColor:     "yellow",
-        mountingColor:  "yellow",
-        finish:         "polished",
-        ringSizeSystem: "US",
-        ringSize:       "6",
-        engravingStyle: "block",
-        engravingText:  "",
+        stoneShape: "round", stoneType: "lab", stoneSize: "1ct",
+        stoneColor: "F", stoneClarity: "VS1",
+        ringHead: "4prongs", mounting: "single",
+        sideSetting: "none", sideStoneType: "natural", mountingLength: "Half",
+        peekaboo: "none", carving: "plain",
+        metalType: "gold", metalQuality: "18KT", metalColor: "yellow", mountingColor: "yellow",
+        finish: "polished",
+        ringSizeSystem: "US", ringSize: "6",
+        engravingStyle: "block", engravingText: "",
       });
 
       const [showEngraving, setShowEngraving] = useState(false);
+      const set = function(key) { return function(val) { setConfig(function(c) { return Object.assign({}, c, { [key]: val }); }); }; };
 
-      const set = (key) => (val) => setConfig((c) => ({ ...c, [key]: val }));
+      const activeMetal = METAL_COLORS.find(function(m) { return m.id === config.metalColor; });
+      const activeEngStyle = ENGRAVING_STYLES.find(function(s) { return s.id === config.engravingStyle; });
 
-      const activeMetal = METAL_COLORS.find(m => m.id === config.metalColor);
-      const activeEngravingStyle = ENGRAVING_STYLES.find(s => s.id === config.engravingStyle);
+      const cardStyle = { background: "#fff", border: "1px solid #e5e7eb", borderRadius: 10, padding: "20px 22px", marginBottom: 16 };
 
-      const cardStyle = {
-        background: "#fff",
-        border: "1px solid #e5e7eb",
-        borderRadius: 10,
-        padding: "20px 22px",
-        marginBottom: 16,
+      const cardLabel = function(text, desc, sel) {
+        return (
+          <>
+            <span style={{ fontSize: 10, fontWeight: 600, color: sel ? "#1a56db" : "#374151", textAlign: "center" }}>{text}</span>
+            <span style={{ fontSize: 9, color: sel ? "#93c5fd" : "#9ca3af", textAlign: "center" }}>{desc}</span>
+          </>
+        );
       };
 
-      const enquire = () => {
+      const enquire = function() {
         const body = [
           "Shape: " + config.stoneShape,
           "Type: " + (config.stoneType === "lab" ? "Lab grown" : "Natural"),
@@ -417,22 +751,16 @@
         <div style={{ fontFamily: "Inter, sans-serif" }}>
           <div className="rb-layout">
 
-            {/* ── LEFT: Preview + summary ── */}
+            {/* LEFT */}
             <div className="rb-sticky">
               <div style={{ ...cardStyle, textAlign: "center", padding: "24px 16px 16px" }}>
-                <RingPreview config={config} />
-                {/* Config tags */}
+                <RingPreview config={config}/>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 4, justifyContent: "center", marginTop: 10 }}>
-                  {[
-                    config.stoneShape,
-                    config.stoneSize,
-                    config.stoneColor + " · " + config.stoneClarity,
-                    config.metalType === "platinum" ? "Platinum" : config.metalQuality + " " + (config.metalColor === "yellow" ? "Yellow" : config.metalColor === "white" ? "White" : "Rose"),
-                  ].map((tag, i) => (
-                    <span key={i} style={{ background: "#f3f4f6", border: "1px solid #e5e7eb", borderRadius: 4, padding: "2px 8px", fontSize: 11, color: "#374151", fontWeight: 500, textTransform: "capitalize" }}>
-                      {tag}
-                    </span>
-                  ))}
+                  {[config.stoneShape, config.stoneSize, config.stoneColor + " · " + config.stoneClarity,
+                    config.metalType === "platinum" ? "Platinum" : config.metalQuality + " " + (config.metalColor === "yellow" ? "Yellow" : config.metalColor === "white" ? "White" : "Rose")
+                  ].map(function(tag, i) {
+                    return <span key={i} style={{ background: "#f3f4f6", border: "1px solid #e5e7eb", borderRadius: 4, padding: "2px 8px", fontSize: 11, color: "#374151", fontWeight: 500, textTransform: "capitalize" }}>{tag}</span>;
+                  })}
                 </div>
               </div>
 
@@ -442,7 +770,6 @@
                 <p style={{ fontSize: 12, color: "#9ca3af", margin: "4px 0 0" }}>Price on application · varies with stone</p>
               </div>
 
-              {/* Summary */}
               <div style={cardStyle}>
                 <p style={{ fontSize: 11, fontWeight: 600, color: "#374151", margin: "0 0 10px", textTransform: "uppercase", letterSpacing: "0.05em" }}>Summary</p>
                 {[
@@ -451,311 +778,252 @@
                   ["Size",    config.stoneSize],
                   ["Colour",  config.stoneColor],
                   ["Clarity", config.stoneClarity],
-                  ["Setting", RING_HEAD_TYPES.find(h => h.id === config.ringHead)?.label],
-                  ["Band",    MOUNTING_TYPES.find(m => m.id === config.mounting)?.label],
-                  ["Metal",   config.metalType === "platinum" ? "Platinum" : config.metalQuality + " " + activeMetal?.label],
+                  ["Setting", (RING_HEAD_TYPES.find(function(h) { return h.id === config.ringHead; }) || {}).label],
+                  ["Band",    (MOUNTING_TYPES.find(function(m) { return m.id === config.mounting; }) || {}).label],
+                  ["Metal",   config.metalType === "platinum" ? "Platinum" : config.metalQuality + " " + (activeMetal || {}).label],
                   ["Finish",  config.finish.charAt(0).toUpperCase() + config.finish.slice(1)],
                   ["Size",    config.ringSize + " (" + config.ringSizeSystem + ")"],
-                ].map(([k, v]) => (
-                  <div key={k} style={{ display: "flex", justifyContent: "space-between", padding: "5px 0", borderTop: "1px solid #f3f4f6", fontSize: 13 }}>
-                    <span style={{ color: "#6b7280" }}>{k}</span>
-                    <span style={{ fontWeight: 500, color: "#111827", textTransform: "capitalize" }}>{v}</span>
-                  </div>
-                ))}
+                ].map(function(row) {
+                  return (
+                    <div key={row[0]} style={{ display: "flex", justifyContent: "space-between", padding: "5px 0", borderTop: "1px solid #f3f4f6", fontSize: 13 }}>
+                      <span style={{ color: "#6b7280" }}>{row[0]}</span>
+                      <span style={{ fontWeight: 500, color: "#111827", textTransform: "capitalize" }}>{row[1]}</span>
+                    </div>
+                  );
+                })}
               </div>
 
-              <button
-                onClick={enquire}
-                style={{ width: "100%", padding: "13px", borderRadius: 8, border: "none", background: "#111827", color: "#fff", fontWeight: 600, fontSize: 14, cursor: "pointer", marginBottom: 10, fontFamily: "Inter, sans-serif" }}
-              >
+              <button onClick={enquire} style={{ width: "100%", padding: "13px", borderRadius: 8, border: "none", background: "#111827", color: "#fff", fontWeight: 600, fontSize: 14, cursor: "pointer", marginBottom: 10, fontFamily: "Inter, sans-serif" }}>
                 Enquire about this ring
               </button>
-              <button
-                onClick={() => { window.location.href = "index.html"; }}
-                style={{ width: "100%", padding: "13px", borderRadius: 8, border: "1.5px solid #1a56db", background: "#fff", color: "#1a56db", fontWeight: 600, fontSize: 14, cursor: "pointer", fontFamily: "Inter, sans-serif" }}
-              >
+              <button onClick={function() { window.location.href = "index.html"; }} style={{ width: "100%", padding: "13px", borderRadius: 8, border: "1.5px solid #1a56db", background: "#fff", color: "#1a56db", fontWeight: 600, fontSize: 14, cursor: "pointer", fontFamily: "Inter, sans-serif" }}>
                 Browse center stones →
               </button>
             </div>
 
-            {/* ── RIGHT: Config panels ── */}
+            {/* RIGHT */}
             <div>
 
               {/* CENTER STONE */}
               <div style={cardStyle}>
                 <SectionTitle>Center stone</SectionTitle>
-
                 <SubLabel>Shape</SubLabel>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 4 }}>
-                  {STONE_SHAPES.map((s) => (
-                    <OptionCard key={s.id} selected={config.stoneShape === s.id} onClick={() => set("stoneShape")(s.id)}>
-                      <span style={{ color: config.stoneShape === s.id ? "#1a56db" : "#374151" }}>
-                        <ShapeIcon id={s.id} size={26} />
-                      </span>
-                      <span style={{ fontSize: 10, fontWeight: 600, color: config.stoneShape === s.id ? "#1a56db" : "#374151" }}>{s.label}</span>
-                      <span style={{ fontSize: 9, color: config.stoneShape === s.id ? "#93c5fd" : "#9ca3af" }}>{s.desc}</span>
-                    </OptionCard>
-                  ))}
+                  {STONE_SHAPES.map(function(s) {
+                    const sel = config.stoneShape === s.id;
+                    return (
+                      <OptionCard key={s.id} selected={sel} onClick={function() { set("stoneShape")(s.id); }}>
+                        <GemShapeIcon id={s.id} sel={sel}/>
+                        {cardLabel(s.label, s.desc, sel)}
+                      </OptionCard>
+                    );
+                  })}
                 </div>
-
                 <SubLabel>Type</SubLabel>
-                <PillToggle
-                  options={[{ id: "lab", label: "Lab grown" }, { id: "natural", label: "Natural" }]}
-                  value={config.stoneType}
-                  onChange={set("stoneType")}
-                />
-
+                <PillToggle options={[{id:"lab",label:"Lab grown"},{id:"natural",label:"Natural"}]} value={config.stoneType} onChange={set("stoneType")}/>
                 <SubLabel>Size</SubLabel>
-                <select
-                  value={config.stoneSize}
-                  onChange={(e) => set("stoneSize")(e.target.value)}
-                  style={{ padding: "8px 12px", borderRadius: 6, border: "1.5px solid #d1d5db", fontSize: 14, marginBottom: 4, width: 150, fontFamily: "Inter, sans-serif" }}
-                >
-                  {STONE_SIZES.map((s) => <option key={s} value={s}>{s}</option>)}
+                <select value={config.stoneSize} onChange={function(e) { set("stoneSize")(e.target.value); }} style={{ padding: "8px 12px", borderRadius: 6, border: "1.5px solid #d1d5db", fontSize: 14, marginBottom: 4, width: 150 }}>
+                  {STONE_SIZES.map(function(s) { return <option key={s} value={s}>{s}</option>; })}
                 </select>
-
-                <GradeRow label="Colour" options={COLOR_GRADES}   value={config.stoneColor}   onChange={set("stoneColor")} />
-                <GradeRow label="Clarity" options={CLARITY_GRADES} value={config.stoneClarity} onChange={set("stoneClarity")} />
+                <GradeRow label="Colour"  options={COLOR_GRADES}   value={config.stoneColor}   onChange={set("stoneColor")}/>
+                <GradeRow label="Clarity" options={CLARITY_GRADES} value={config.stoneClarity} onChange={set("stoneClarity")}/>
               </div>
 
-              {/* RING SETTING */}
+              {/* SETTING */}
               <div style={cardStyle}>
                 <SectionTitle>Setting</SectionTitle>
                 <p style={{ fontSize: 12, color: "#6b7280", margin: "4px 0 12px", fontFamily: "Inter, sans-serif" }}>How the stone sits on the ring</p>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                  {RING_HEAD_TYPES.map((h) => (
-                    <OptionCard key={h.id} selected={config.ringHead === h.id} onClick={() => set("ringHead")(h.id)}>
-                      <svg width="28" height="28" viewBox="0 0 32 32">
-                        <circle cx="16" cy="14" r="8" fill="none" stroke={config.ringHead === h.id ? "#1a56db" : "#9ca3af"} strokeWidth="1.5" />
-                        <rect x="12" y="20" width="8" height="8" rx="2" fill={config.ringHead === h.id ? "#1a56db" : "#d1d5db"} opacity="0.4" />
-                      </svg>
-                      <span style={{ fontSize: 10, fontWeight: 600, color: config.ringHead === h.id ? "#1a56db" : "#374151", textAlign: "center" }}>{h.label}</span>
-                      <span style={{ fontSize: 9, color: config.ringHead === h.id ? "#93c5fd" : "#9ca3af", textAlign: "center" }}>{h.desc}</span>
-                    </OptionCard>
-                  ))}
+                  {RING_HEAD_TYPES.map(function(h) {
+                    const sel = config.ringHead === h.id;
+                    return (
+                      <OptionCard key={h.id} selected={sel} onClick={function() { set("ringHead")(h.id); }}>
+                        <SettingIcon id={h.id} sel={sel}/>
+                        {cardLabel(h.label, h.desc, sel)}
+                      </OptionCard>
+                    );
+                  })}
                 </div>
               </div>
 
               {/* BAND */}
               <div style={cardStyle}>
                 <SectionTitle>Band</SectionTitle>
-
                 <SubLabel>Style</SubLabel>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 18 }}>
-                  {MOUNTING_TYPES.map((m) => (
-                    <OptionCard key={m.id} selected={config.mounting === m.id} onClick={() => set("mounting")(m.id)}>
-                      <svg width="28" height="28" viewBox="0 0 32 32">
-                        <path d="M6 22 C10 12 22 12 26 22" fill="none" stroke={config.mounting === m.id ? "#1a56db" : "#9ca3af"} strokeWidth="2" strokeLinecap="round" />
-                      </svg>
-                      <span style={{ fontSize: 10, fontWeight: 600, color: config.mounting === m.id ? "#1a56db" : "#374151", textAlign: "center" }}>{m.label}</span>
-                      <span style={{ fontSize: 9, color: config.mounting === m.id ? "#93c5fd" : "#9ca3af", textAlign: "center" }}>{m.desc}</span>
-                    </OptionCard>
-                  ))}
+                  {MOUNTING_TYPES.map(function(m) {
+                    const sel = config.mounting === m.id;
+                    return (
+                      <OptionCard key={m.id} selected={sel} onClick={function() { set("mounting")(m.id); }}>
+                        <BandStyleIcon id={m.id} sel={sel}/>
+                        {cardLabel(m.label, m.desc, sel)}
+                      </OptionCard>
+                    );
+                  })}
                 </div>
 
                 <SubLabel>Side stones</SubLabel>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 12 }}>
-                  {SIDE_SETTING_TYPES.map((s) => (
-                    <OptionCard key={s.id} selected={config.sideSetting === s.id} onClick={() => set("sideSetting")(s.id)}>
-                      <svg width="28" height="28" viewBox="0 0 32 32">
-                        {s.id === "none" ? (
-                          <line x1="8" y1="8" x2="24" y2="24" stroke="#d1d5db" strokeWidth="2" />
-                        ) : (
-                          [8, 14, 20].map((x) => (
-                            <circle key={x} cx={x} cy="16" r="3" fill={config.sideSetting === s.id ? "#1a56db" : "#d1d5db"} opacity="0.8" />
-                          ))
-                        )}
-                      </svg>
-                      <span style={{ fontSize: 10, fontWeight: 600, color: config.sideSetting === s.id ? "#1a56db" : "#374151" }}>{s.label}</span>
-                      <span style={{ fontSize: 9, color: config.sideSetting === s.id ? "#93c5fd" : "#9ca3af" }}>{s.desc}</span>
-                    </OptionCard>
-                  ))}
+                  {SIDE_SETTING_TYPES.map(function(s) {
+                    const sel = config.sideSetting === s.id;
+                    return (
+                      <OptionCard key={s.id} selected={sel} onClick={function() { set("sideSetting")(s.id); }}>
+                        <SideSettingIcon id={s.id} sel={sel}/>
+                        {cardLabel(s.label, s.desc, sel)}
+                      </OptionCard>
+                    );
+                  })}
                 </div>
 
                 {config.sideSetting !== "none" && (
                   <>
-                    <SubLabel>Side stone type</SubLabel>
+                    <SubLabel>Stone type</SubLabel>
                     <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 14 }}>
-                      {SIDE_STONE_TYPES.map((s) => (
-                        <OptionCard key={s.id} selected={config.sideStoneType === s.id} onClick={() => set("sideStoneType")(s.id)}>
-                          <div style={{ width: 20, height: 20, borderRadius: "50%", background: s.color, border: "1.5px solid #e5e7eb" }} />
-                          <span style={{ fontSize: 9, color: config.sideStoneType === s.id ? "#1a56db" : "#6b7280", textAlign: "center", fontWeight: 600 }}>{s.label}</span>
-                        </OptionCard>
-                      ))}
+                      {SIDE_STONE_TYPES.map(function(s) {
+                        const sel = config.sideStoneType === s.id;
+                        return (
+                          <OptionCard key={s.id} selected={sel} onClick={function() { set("sideStoneType")(s.id); }}>
+                            <div style={{ width: 28, height: 28, borderRadius: "50%", background: s.color, border: sel ? "2px solid #1a56db" : "1.5px solid #e5e7eb", boxShadow: "inset 0 2px 4px rgba(255,255,255,0.3)" }}/>
+                            <span style={{ fontSize: 9, color: sel ? "#1a56db" : "#6b7280", textAlign: "center", fontWeight: 600 }}>{s.label}</span>
+                          </OptionCard>
+                        );
+                      })}
                     </div>
-
                     <SubLabel>Coverage</SubLabel>
                     <div style={{ display: "flex", gap: 8, marginBottom: 4 }}>
-                      {["Half", "Three quarters"].map((l) => (
-                        <OptionCard key={l} selected={config.mountingLength === l} onClick={() => set("mountingLength")(l)}>
-                          <svg width="28" height="28" viewBox="0 0 32 32">
-                            <circle cx="16" cy="16" r="12" fill="none" stroke={config.mountingLength === l ? "#1a56db" : "#d1d5db"} strokeWidth="2" strokeDasharray={l === "Half" ? "18 18" : "27 9"} />
-                          </svg>
-                          <span style={{ fontSize: 10, fontWeight: 600, color: config.mountingLength === l ? "#1a56db" : "#374151" }}>{l}</span>
-                        </OptionCard>
-                      ))}
+                      {["Half","Three quarters"].map(function(l) {
+                        const sel = config.mountingLength === l;
+                        return (
+                          <OptionCard key={l} selected={sel} onClick={function() { set("mountingLength")(l); }}>
+                            <svg width="44" height="44" viewBox="0 0 48 48">
+                              <circle cx="24" cy="24" r="18" fill="none" stroke={sel ? "#bfdbfe" : "#e5e7eb"} strokeWidth="6"/>
+                              <circle cx="24" cy="24" r="18" fill="none" stroke={sel ? "#1a56db" : "#9ca3af"} strokeWidth="6" strokeDasharray={l === "Half" ? "56 57" : "85 28"} strokeLinecap="round"/>
+                            </svg>
+                            <span style={{ fontSize: 10, fontWeight: 600, color: sel ? "#1a56db" : "#374151" }}>{l}</span>
+                          </OptionCard>
+                        );
+                      })}
                     </div>
                   </>
                 )}
 
                 <SubLabel>Carving</SubLabel>
                 <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
-                  {CARVING_TYPES.map((c) => (
-                    <OptionCard key={c.id} selected={config.carving === c.id} onClick={() => set("carving")(c.id)}>
-                      <svg width="28" height="28" viewBox="0 0 32 32">
-                        <path
-                          d={c.id === "plain" ? "M6 16 L26 16" : c.id === "leaf" ? "M6 16 C10 10 15 10 16 16 C17 22 22 22 26 16" : "M6 16 C8 12 10 20 12 16 C14 12 16 20 18 16 C20 12 22 20 24 16 C25 14 26 15 26 16"}
-                          fill="none" stroke={config.carving === c.id ? "#1a56db" : "#9ca3af"} strokeWidth="2" strokeLinecap="round"
-                        />
-                      </svg>
-                      <span style={{ fontSize: 10, fontWeight: 600, color: config.carving === c.id ? "#1a56db" : "#374151" }}>{c.label}</span>
-                      <span style={{ fontSize: 9, color: config.carving === c.id ? "#93c5fd" : "#9ca3af" }}>{c.desc}</span>
-                    </OptionCard>
-                  ))}
+                  {CARVING_TYPES.map(function(c) {
+                    const sel = config.carving === c.id;
+                    return (
+                      <OptionCard key={c.id} selected={sel} onClick={function() { set("carving")(c.id); }}>
+                        <CarvingIcon id={c.id} sel={sel}/>
+                        {cardLabel(c.label, c.desc, sel)}
+                      </OptionCard>
+                    );
+                  })}
                 </div>
 
                 <SubLabel>Peekaboo stone</SubLabel>
                 <div style={{ display: "flex", gap: 8 }}>
-                  {PEEKABOO_TYPES.map((p) => (
-                    <OptionCard key={p.id} selected={config.peekaboo === p.id} onClick={() => set("peekaboo")(p.id)}>
-                      <svg width="28" height="28" viewBox="0 0 32 32">
-                        {p.id === "none" ? (
-                          <line x1="8" y1="8" x2="24" y2="24" stroke="#d1d5db" strokeWidth="2" />
-                        ) : p.id === "round" ? (
-                          <circle cx="16" cy="16" r="9" fill="none" stroke={config.peekaboo === p.id ? "#1a56db" : "#9ca3af"} strokeWidth="1.5" />
-                        ) : (
-                          <rect x="8" y="8" width="16" height="16" rx="2" fill="none" stroke={config.peekaboo === p.id ? "#1a56db" : "#9ca3af"} strokeWidth="1.5" />
-                        )}
-                      </svg>
-                      <span style={{ fontSize: 10, fontWeight: 600, color: config.peekaboo === p.id ? "#1a56db" : "#374151" }}>{p.label}</span>
-                      <span style={{ fontSize: 9, color: config.peekaboo === p.id ? "#93c5fd" : "#9ca3af" }}>{p.desc}</span>
-                    </OptionCard>
-                  ))}
+                  {PEEKABOO_TYPES.map(function(p) {
+                    const sel = config.peekaboo === p.id;
+                    return (
+                      <OptionCard key={p.id} selected={sel} onClick={function() { set("peekaboo")(p.id); }}>
+                        <PeekabooIcon id={p.id} sel={sel}/>
+                        {cardLabel(p.label, p.desc, sel)}
+                      </OptionCard>
+                    );
+                  })}
                 </div>
               </div>
 
               {/* MATERIALS */}
               <div style={cardStyle}>
                 <SectionTitle>Materials</SectionTitle>
-
                 <SubLabel>Metal type</SubLabel>
-                <PillToggle
-                  options={[{ id: "gold", label: "Gold", dot: "#D4A017" }, { id: "platinum", label: "Platinum", dot: "#C0C0C0" }]}
-                  value={config.metalType}
-                  onChange={set("metalType")}
-                />
-
+                <PillToggle options={[{id:"gold",label:"Gold",dot:"#D4A017"},{id:"platinum",label:"Platinum",dot:"#C0C0C0"}]} value={config.metalType} onChange={set("metalType")}/>
                 {config.metalType === "gold" && (
                   <>
                     <SubLabel>Karat</SubLabel>
                     <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
-                      {["9KT","14KT","18KT"].map((q) => (
-                        <button key={q} onClick={() => set("metalQuality")(q)}
-                          style={{ padding: "7px 18px", borderRadius: 6, border: config.metalQuality === q ? "2px solid #1a56db" : "1.5px solid #d1d5db", background: config.metalQuality === q ? "#eff6ff" : "#fff", color: config.metalQuality === q ? "#1a56db" : "#374151", fontWeight: 600, fontSize: 13, cursor: "pointer", fontFamily: "Inter, sans-serif" }}>
-                          {q}
-                        </button>
-                      ))}
+                      {["9KT","14KT","18KT"].map(function(q) {
+                        const a = config.metalQuality === q;
+                        return <button key={q} onClick={function() { set("metalQuality")(q); }} style={{ padding: "7px 18px", borderRadius: 6, border: a ? "2px solid #1a56db" : "1.5px solid #d1d5db", background: a ? "#eff6ff" : "#fff", color: a ? "#1a56db" : "#374151", fontWeight: 600, fontSize: 13, cursor: "pointer", fontFamily: "Inter, sans-serif" }}>{q}</button>;
+                      })}
                     </div>
                   </>
                 )}
-
                 <SubLabel>Head colour</SubLabel>
                 <div style={{ display: "flex", gap: 8, marginBottom: 6 }}>
-                  {METAL_COLORS.map((mc) => (
-                    <button key={mc.id} onClick={() => set("metalColor")(mc.id)}
-                      style={{ padding: "8px 14px", borderRadius: 20, border: config.metalColor === mc.id ? "2px solid #1a56db" : "1.5px solid #d1d5db", background: config.metalColor === mc.id ? "#eff6ff" : "#fff", color: config.metalColor === mc.id ? "#1a56db" : "#374151", fontWeight: 500, fontSize: 12, cursor: "pointer", display: "flex", alignItems: "center", gap: 6, fontFamily: "Inter, sans-serif" }}>
-                      <span style={{ width: 12, height: 12, borderRadius: "50%", background: mc.color, border: "1px solid rgba(0,0,0,0.1)", display: "inline-block" }} />
-                      {mc.label}
-                    </button>
-                  ))}
+                  {METAL_COLORS.map(function(mc) {
+                    const a = config.metalColor === mc.id;
+                    return (
+                      <button key={mc.id} onClick={function() { set("metalColor")(mc.id); }} style={{ padding: "8px 14px", borderRadius: 20, border: a ? "2px solid #1a56db" : "1.5px solid #d1d5db", background: a ? "#eff6ff" : "#fff", color: a ? "#1a56db" : "#374151", fontWeight: 500, fontSize: 12, cursor: "pointer", display: "flex", alignItems: "center", gap: 6, fontFamily: "Inter, sans-serif" }}>
+                        <span style={{ width: 12, height: 12, borderRadius: "50%", background: mc.color, border: "1px solid rgba(0,0,0,0.1)", display: "inline-block" }}/>
+                        {mc.label}
+                      </button>
+                    );
+                  })}
                 </div>
-                {activeMetal && (
-                  <p style={{ fontSize: 12, color: "#6b7280", margin: "0 0 14px", fontFamily: "Inter, sans-serif" }}>
-                    {activeMetal.label} · {activeMetal.desc}
-                  </p>
-                )}
-
+                {activeMetal && <p style={{ fontSize: 12, color: "#6b7280", margin: "0 0 14px", fontFamily: "Inter, sans-serif" }}>{activeMetal.label} · {activeMetal.desc}</p>}
                 <SubLabel>Band colour</SubLabel>
                 <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
-                  {METAL_COLORS.map((mc) => (
-                    <button key={mc.id} onClick={() => set("mountingColor")(mc.id)}
-                      style={{ padding: "8px 14px", borderRadius: 20, border: (config.mountingColor || "yellow") === mc.id ? "2px solid #1a56db" : "1.5px solid #d1d5db", background: (config.mountingColor || "yellow") === mc.id ? "#eff6ff" : "#fff", color: (config.mountingColor || "yellow") === mc.id ? "#1a56db" : "#374151", fontWeight: 500, fontSize: 12, cursor: "pointer", display: "flex", alignItems: "center", gap: 6, fontFamily: "Inter, sans-serif" }}>
-                      <span style={{ width: 12, height: 12, borderRadius: "50%", background: mc.color, border: "1px solid rgba(0,0,0,0.1)", display: "inline-block" }} />
-                      {mc.label}
-                    </button>
-                  ))}
+                  {METAL_COLORS.map(function(mc) {
+                    const a = (config.mountingColor || "yellow") === mc.id;
+                    return (
+                      <button key={mc.id} onClick={function() { set("mountingColor")(mc.id); }} style={{ padding: "8px 14px", borderRadius: 20, border: a ? "2px solid #1a56db" : "1.5px solid #d1d5db", background: a ? "#eff6ff" : "#fff", color: a ? "#1a56db" : "#374151", fontWeight: 500, fontSize: 12, cursor: "pointer", display: "flex", alignItems: "center", gap: 6, fontFamily: "Inter, sans-serif" }}>
+                        <span style={{ width: 12, height: 12, borderRadius: "50%", background: mc.color, border: "1px solid rgba(0,0,0,0.1)", display: "inline-block" }}/>
+                        {mc.label}
+                      </button>
+                    );
+                  })}
                 </div>
-
                 <SubLabel>Finish</SubLabel>
                 <div style={{ display: "flex", gap: 8 }}>
-                  {FINISH_TYPES.map((f) => (
-                    <OptionCard key={f.id} selected={config.finish === f.id} onClick={() => set("finish")(f.id)}>
-                      <svg width="28" height="28" viewBox="0 0 32 32">
-                        {f.id === "polished" && (
-                          <circle cx="16" cy="16" r="10" fill="none" stroke={config.finish === f.id ? "#1a56db" : "#9ca3af"} strokeWidth="1.5" />
-                        )}
-                        {f.id === "brushed" && (
-                          <>
-                            {[10,13,16,19,22].map(y => (
-                              <line key={y} x1="7" y1={y} x2="25" y2={y} stroke={config.finish === f.id ? "#1a56db" : "#9ca3af"} strokeWidth="1" />
-                            ))}
-                          </>
-                        )}
-                        {f.id === "matte" && (
-                          <rect x="7" y="7" width="18" height="18" rx="2" fill={config.finish === f.id ? "#1a56db" : "#d1d5db"} opacity="0.3" stroke={config.finish === f.id ? "#1a56db" : "#9ca3af"} strokeWidth="1.5" />
-                        )}
-                      </svg>
-                      <span style={{ fontSize: 10, fontWeight: 600, color: config.finish === f.id ? "#1a56db" : "#374151" }}>{f.label}</span>
-                      <span style={{ fontSize: 9, color: config.finish === f.id ? "#93c5fd" : "#9ca3af" }}>{f.desc}</span>
-                    </OptionCard>
-                  ))}
+                  {FINISH_TYPES.map(function(f) {
+                    const sel = config.finish === f.id;
+                    return (
+                      <OptionCard key={f.id} selected={sel} onClick={function() { set("finish")(f.id); }}>
+                        <FinishIcon id={f.id} sel={sel}/>
+                        {cardLabel(f.label, f.desc, sel)}
+                      </OptionCard>
+                    );
+                  })}
                 </div>
               </div>
 
               {/* SIZING & ENGRAVING */}
               <div style={cardStyle}>
                 <SectionTitle>Sizing &amp; engraving</SectionTitle>
-
                 <SubLabel>Ring size</SubLabel>
                 <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
-                  <PillToggle
-                    options={[{ id: "UK", label: "UK" }, { id: "US", label: "US" }]}
-                    value={config.ringSizeSystem}
-                    onChange={set("ringSizeSystem")}
-                  />
-                  <input type="number" min="1" max="13" step="0.5" value={config.ringSize}
-                    onChange={(e) => set("ringSize")(e.target.value)}
-                    style={{ width: 70, padding: "7px", borderRadius: 6, border: "1.5px solid #d1d5db", fontSize: 14, textAlign: "center", fontFamily: "Inter, sans-serif" }} />
+                  <PillToggle options={[{id:"UK",label:"UK"},{id:"US",label:"US"}]} value={config.ringSizeSystem} onChange={set("ringSizeSystem")}/>
+                  <input type="number" min="1" max="13" step="0.5" value={config.ringSize} onChange={function(e) { set("ringSize")(e.target.value); }} style={{ width: 70, padding: "7px", borderRadius: 6, border: "1.5px solid #d1d5db", fontSize: 14, textAlign: "center" }}/>
                 </div>
-
                 <SubLabel>Engraving font</SubLabel>
                 <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
-                  {ENGRAVING_STYLES.map((s) => (
-                    <OptionCard key={s.id} selected={config.engravingStyle === s.id} onClick={() => set("engravingStyle")(s.id)}>
-                      <span style={{ fontSize: 18, color: config.engravingStyle === s.id ? "#1a56db" : "#374151", lineHeight: 1, ...s.style }}>{s.sample}</span>
-                      <span style={{ fontSize: 10, fontWeight: 600, color: config.engravingStyle === s.id ? "#1a56db" : "#374151" }}>{s.label}</span>
-                    </OptionCard>
-                  ))}
+                  {ENGRAVING_STYLES.map(function(s) {
+                    const sel = config.engravingStyle === s.id;
+                    return (
+                      <OptionCard key={s.id} selected={sel} onClick={function() { set("engravingStyle")(s.id); }}>
+                        <span style={{ fontSize: 20, color: sel ? "#1a56db" : "#374151", lineHeight: 1, ...s.style }}>{s.sample}</span>
+                        <span style={{ fontSize: 10, fontWeight: 600, color: sel ? "#1a56db" : "#374151" }}>{s.label}</span>
+                      </OptionCard>
+                    );
+                  })}
                 </div>
-
                 <SubLabel>Inscription</SubLabel>
                 <div style={{ border: "1.5px solid #d1d5db", borderRadius: 8, padding: "10px 14px", display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
                   {showEngraving ? (
-                    <input autoFocus value={config.engravingText} onChange={(e) => set("engravingText")(e.target.value)}
-                      placeholder="e.g. 09 · 06 · 2026" maxLength={30}
-                      style={{ border: "none", outline: "none", fontSize: 14, flex: 1, background: "transparent", fontFamily: "Inter, sans-serif", ...(activeEngravingStyle?.style || {}) }} />
+                    <input autoFocus value={config.engravingText} onChange={function(e) { set("engravingText")(e.target.value); }} placeholder="e.g. 09 · 06 · 2026" maxLength={30} style={{ border: "none", outline: "none", fontSize: 14, flex: 1, background: "transparent", fontFamily: "Inter, sans-serif", ...(activeEngStyle ? activeEngStyle.style : {}) }}/>
                   ) : (
                     <span style={{ color: "#9ca3af", fontSize: 14 }}>{config.engravingText || "No engraving added"}</span>
                   )}
-                  <button onClick={() => setShowEngraving(!showEngraving)}
-                    style={{ background: "none", border: "none", color: "#1a56db", fontWeight: 600, cursor: "pointer", fontSize: 13, fontFamily: "Inter, sans-serif" }}>
+                  <button onClick={function() { setShowEngraving(!showEngraving); }} style={{ background: "none", border: "none", color: "#1a56db", fontWeight: 600, cursor: "pointer", fontSize: 13, fontFamily: "Inter, sans-serif" }}>
                     {showEngraving ? "Done" : "Add +"}
                   </button>
                 </div>
                 {config.engravingText && (
                   <div style={{ background: "#f9fafb", border: "1px solid #e5e7eb", borderRadius: 8, padding: "12px", textAlign: "center" }}>
                     <p style={{ fontSize: 10, color: "#9ca3af", margin: "0 0 4px", textTransform: "uppercase", letterSpacing: "0.06em" }}>Preview · Inner band</p>
-                    <p style={{ fontSize: 14, color: "#374151", margin: 0, ...(activeEngravingStyle?.style || {}) }}>{config.engravingText}</p>
+                    <p style={{ fontSize: 14, color: "#374151", margin: 0, ...(activeEngStyle ? activeEngStyle.style : {}) }}>{config.engravingText}</p>
                   </div>
                 )}
               </div>
@@ -763,8 +1031,8 @@
               {/* HALLMARKING */}
               <div style={{ ...cardStyle, display: "flex", alignItems: "center", gap: 10 }}>
                 <svg width="18" height="18" viewBox="0 0 16 16" fill="none">
-                  <circle cx="8" cy="8" r="8" fill="#057a55" />
-                  <path d="M4.5 8L7 10.5L11.5 5.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                  <circle cx="8" cy="8" r="8" fill="#057a55"/>
+                  <path d="M4.5 8L7 10.5L11.5 5.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
                 <div>
                   <p style={{ fontWeight: 600, fontSize: 14, margin: 0, color: "#111827" }}>Hallmarking included</p>
@@ -778,8 +1046,7 @@
       );
     }
 
-    ReactDOM.createRoot(document.getElementById('ring-root')).render(<RingConfigurator />);
+    ReactDOM.createRoot(document.getElementById('ring-root')).render(<RingConfigurator/>);
   </script>
-
 </body>
 </html>
