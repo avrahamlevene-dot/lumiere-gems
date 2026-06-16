@@ -668,32 +668,268 @@
     }
 
     function RingPreview({ config }) {
-      const mc = config.metalColor === "yellow" ? "#D4A017" : config.metalColor === "rose" ? "#E8946A" : "#C8C8C8";
-      const sc = config.stoneType === "lab" ? "#c8d8f8" : "#f0f0f0";
+      /* ── palette ── */
+      const metals = {
+        yellow: { base: "#D4A017", dark: "#9A7010", light: "#F0D060", shine: "#FFFAE0" },
+        white:  { base: "#C4C4C4", dark: "#888888", light: "#E8E8E8", shine: "#FFFFFF" },
+        rose:   { base: "#D48878", dark: "#9A5848", light: "#EEA898", shine: "#FFE8E0" },
+      };
+      const hm = metals[config.metalColor] || metals.yellow;
+      const bm = metals[config.mountingColor || config.metalColor] || hm;
+      const st = config.stoneType === "lab"
+        ? { main: "#C8D8F8", inner: "#94B8F0", table: "#A8C4F8", shine: "rgba(255,255,255,0.95)" }
+        : { main: "#F0EDE8", inner: "#D8D0C4", table: "#E8E0D8", shine: "rgba(255,255,255,0.9)" };
+
+      const sideStoneColor =
+        config.sideStoneType === "blackdiamond" ? "#555" :
+        config.sideStoneType === "altsapphire"  ? "#4263EB" :
+        config.sideStoneType === "altemerald"   ? "#2F9E44" :
+        config.sideStoneType === "altruby"      ? "#C92A2A" : st.main;
+
+      const cx = 140, cy = 74;  /* stone centre */
+
+      /* ── stone shape ── */
+      function StoneGem() {
+        const s = config.stoneShape;
+        const facetLine = function(a, r1, r2) {
+          const rad = a * Math.PI / 180;
+          return { x1: cx + r1*Math.cos(rad), y1: cy + r1*Math.sin(rad), x2: cx + r2*Math.cos(rad), y2: cy + r2*Math.sin(rad) };
+        };
+        if (s === "round") {
+          return (
+            <g>
+              <circle cx={cx} cy={cy} r="27" fill={st.main} stroke={hm.dark} strokeWidth="1.2"/>
+              {[0,45,90,135,180,225,270,315].map(function(a,i) { const l=facetLine(a,27,12); return <line key={i} x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2} stroke={st.inner} strokeWidth="0.7"/>; })}
+              <circle cx={cx} cy={cy} r="12" fill={st.table} stroke={hm.dark} strokeWidth="0.7"/>
+              <circle cx={cx-8} cy={cy-8} r="6" fill={st.shine}/>
+              <circle cx={cx-2} cy={cy-14} r="3" fill={st.shine} opacity="0.7"/>
+            </g>
+          );
+        }
+        if (s === "oval") return (
+          <g>
+            <ellipse cx={cx} cy={cy} rx="22" ry="29" fill={st.main} stroke={hm.dark} strokeWidth="1.2"/>
+            {[0,45,90,135,180,225,270,315].map(function(a,i) {
+              const rad = a*Math.PI/180; const ox=22*Math.cos(rad), oy=29*Math.sin(rad); const len=Math.sqrt(ox*ox+oy*oy), sc=11/len;
+              return <line key={i} x1={cx+ox} y1={cy+oy} x2={cx+ox*sc} y2={cy+oy*sc} stroke={st.inner} strokeWidth="0.7"/>;
+            })}
+            <ellipse cx={cx} cy={cy} rx="11" ry="14" fill={st.table} stroke={hm.dark} strokeWidth="0.7"/>
+            <ellipse cx={cx-6} cy={cy-10} rx="5" ry="7" fill={st.shine}/>
+          </g>
+        );
+        if (s === "cushion") return (
+          <g>
+            <rect x={cx-24} y={cy-27} width="48" height="54" rx="12" fill={st.main} stroke={hm.dark} strokeWidth="1.2"/>
+            <line x1={cx-24} y1={cy-27} x2={cx-10} y2={cy-13} stroke={st.inner} strokeWidth="0.7"/>
+            <line x1={cx+24} y1={cy-27} x2={cx+10} y2={cy-13} stroke={st.inner} strokeWidth="0.7"/>
+            <line x1={cx+24} y1={cy+27} x2={cx+10} y2={cy+13} stroke={st.inner} strokeWidth="0.7"/>
+            <line x1={cx-24} y1={cy+27} x2={cx-10} y2={cy+13} stroke={st.inner} strokeWidth="0.7"/>
+            <rect x={cx-10} y={cy-13} width="20" height="26" rx="4" fill={st.table} stroke={hm.dark} strokeWidth="0.7"/>
+            <circle cx={cx-7} cy={cy-9} r="5.5" fill={st.shine}/>
+          </g>
+        );
+        if (s === "princess") return (
+          <g>
+            <rect x={cx-25} y={cy-25} width="50" height="50" fill={st.main} stroke={hm.dark} strokeWidth="1.2"/>
+            <line x1={cx-25} y1={cy-25} x2={cx+25} y2={cy+25} stroke={st.inner} strokeWidth="0.7"/>
+            <line x1={cx+25} y1={cy-25} x2={cx-25} y2={cy+25} stroke={st.inner} strokeWidth="0.7"/>
+            <polygon points={`${cx-25},${cy-25} ${cx+25},${cy-25} ${cx+25},${cy-25} ${cx},${cy-12} ${cx-25},${cy-25}`} fill={st.inner} opacity="0.35"/>
+            <rect x={cx-11} y={cy-11} width="22" height="22" fill={st.table} stroke={hm.dark} strokeWidth="0.7"/>
+            <circle cx={cx-8} cy={cy-8} r="5" fill={st.shine}/>
+          </g>
+        );
+        if (s === "pear") return (
+          <g>
+            <path d={"M "+cx+" "+(cy-29)+" C "+(cx-8)+" "+(cy-29)+" "+(cx-23)+" "+(cy-12)+" "+(cx-23)+" "+(cy+4)+" C "+(cx-23)+" "+(cy+18)+" "+(cx-10)+" "+(cy+29)+" "+cx+" "+(cy+29)+" C "+(cx+10)+" "+(cy+29)+" "+(cx+23)+" "+(cy+18)+" "+(cx+23)+" "+(cy+4)+" C "+(cx+23)+" "+(cy-12)+" "+(cx+8)+" "+(cy-29)+" "+cx+" "+(cy-29)+" Z"} fill={st.main} stroke={hm.dark} strokeWidth="1.2"/>
+            <line x1={cx} y1={cy-29} x2={cx} y2={cy-13} stroke={st.inner} strokeWidth="0.7"/>
+            <line x1={cx-23} y1={cy+4} x2={cx-11} y2={cy+4} stroke={st.inner} strokeWidth="0.7"/>
+            <line x1={cx+23} y1={cy+4} x2={cx+11} y2={cy+4} stroke={st.inner} strokeWidth="0.7"/>
+            <path d={"M "+cx+" "+(cy-14)+" C "+(cx-5)+" "+(cy-14)+" "+(cx-11)+" "+(cy-6)+" "+(cx-11)+" "+(cy+4)+" C "+(cx-11)+" "+(cy+14)+" "+(cx-5)+" "+(cy+19)+" "+cx+" "+(cy+19)+" C "+(cx+5)+" "+(cy+19)+" "+(cx+11)+" "+(cy+14)+" "+(cx+11)+" "+(cy+4)+" C "+(cx+11)+" "+(cy-6)+" "+(cx+5)+" "+(cy-14)+" "+cx+" "+(cy-14)+" Z"} fill={st.table} stroke={hm.dark} strokeWidth="0.7"/>
+            <circle cx={cx-6} cy={cy-16} r="5" fill={st.shine}/>
+          </g>
+        );
+        if (s === "emerald") return (
+          <g>
+            <polygon points={`${cx-12},${cy-28} ${cx+12},${cy-28} ${cx+24},${cy-14} ${cx+24},${cy+14} ${cx+12},${cy+28} ${cx-12},${cy+28} ${cx-24},${cy+14} ${cx-24},${cy-14}`} fill={st.main} stroke={hm.dark} strokeWidth="1.2"/>
+            <polygon points={`${cx-7},${cy-18} ${cx+7},${cy-18} ${cx+16},${cy-8} ${cx+16},${cy+8} ${cx+7},${cy+18} ${cx-7},${cy+18} ${cx-16},${cy+8} ${cx-16},${cy-8}`} fill={st.table} stroke={hm.dark} strokeWidth="0.7"/>
+            <polygon points={`${cx-3},${cy-10} ${cx+3},${cy-10} ${cx+8},${cy} ${cx+3},${cy+10} ${cx-3},${cy+10} ${cx-8},${cy}`} fill={st.inner} opacity="0.4"/>
+            <circle cx={cx-8} cy={cy-16} r="5" fill={st.shine}/>
+          </g>
+        );
+        if (s === "marquise") return (
+          <g>
+            <path d={"M "+cx+" "+(cy-29)+" C "+(cx-17)+" "+(cy-16)+" "+(cx-23)+" "+(cy-6)+" "+(cx-23)+" "+cy+" C "+(cx-23)+" "+(cy+6)+" "+(cx-17)+" "+(cy+16)+" "+cx+" "+(cy+29)+" C "+(cx+17)+" "+(cy+16)+" "+(cx+23)+" "+(cy+6)+" "+(cx+23)+" "+cy+" C "+(cx+23)+" "+(cy-6)+" "+(cx+17)+" "+(cy-16)+" "+cx+" "+(cy-29)+" Z"} fill={st.main} stroke={hm.dark} strokeWidth="1.2"/>
+            <line x1={cx} y1={cy-29} x2={cx} y2={cy+29} stroke={st.inner} strokeWidth="0.7"/>
+            <line x1={cx-23} y1={cy} x2={cx+23} y2={cy} stroke={st.inner} strokeWidth="0.7"/>
+            <path d={"M "+cx+" "+(cy-14)+" C "+(cx-9)+" "+(cy-8)+" "+(cx-12)+" "+(cy-3)+" "+(cx-12)+" "+cy+" C "+(cx-12)+" "+(cy+3)+" "+(cx-9)+" "+(cy+8)+" "+cx+" "+(cy+14)+" C "+(cx+9)+" "+(cy+8)+" "+(cx+12)+" "+(cy+3)+" "+(cx+12)+" "+cy+" C "+(cx+12)+" "+(cy-3)+" "+(cx+9)+" "+(cy-8)+" "+cx+" "+(cy-14)+" Z"} fill={st.table} stroke={hm.dark} strokeWidth="0.7"/>
+            <circle cx={cx-6} cy={cy-14} r="5" fill={st.shine}/>
+          </g>
+        );
+        return <circle cx={cx} cy={cy} r="26" fill={st.main} stroke={hm.dark} strokeWidth="1.2"/>;
+      }
+
+      /* ── setting decorations ── */
+      function SettingDecor() {
+        const h = config.ringHead;
+        if (h === "4prongs") return (
+          <g>
+            {[{x:cx-22,y:cy-20},{x:cx+22,y:cy-20},{x:cx-22,y:cy+20},{x:cx+22,y:cy+20}].map(function(p,i) {
+              return <circle key={i} cx={p.x} cy={p.y} r="5" fill={hm.base} stroke={hm.dark} strokeWidth="1.2"/>;
+            })}
+          </g>
+        );
+        if (h === "singlehalo") {
+          const n = 18;
+          return <g>{Array.from({length:n},function(_,i){ const a=i*(360/n)*Math.PI/180; return <circle key={i} cx={cx+33*Math.cos(a)} cy={cy+38*Math.sin(a)} r="3.5" fill={st.main} stroke={hm.dark} strokeWidth="0.8"/>; })}</g>;
+        }
+        if (h === "doublehalo") {
+          const o = Array.from({length:22},function(_,i){ const a=i*(360/22)*Math.PI/180; return {cx:cx+40*Math.cos(a),cy:cy+46*Math.sin(a)}; });
+          const n = Array.from({length:16},function(_,i){ const a=i*(360/16)*Math.PI/180; return {cx:cx+31*Math.cos(a),cy:cy+35*Math.sin(a)}; });
+          return <g>{o.map(function(d,i){ return <circle key={"o"+i} cx={d.cx} cy={d.cy} r="2.5" fill={st.inner} stroke={hm.dark} strokeWidth="0.6"/>; })}{n.map(function(d,i){ return <circle key={"n"+i} cx={d.cx} cy={d.cy} r="3.2" fill={st.main} stroke={hm.dark} strokeWidth="0.8"/>; })}</g>;
+        }
+        if (h === "flowerhalo") {
+          return <g>{Array.from({length:8},function(_,i){ const a=i*45*Math.PI/180; const px=cx+34*Math.cos(a), py=cy+38*Math.sin(a); return <ellipse key={i} cx={px} cy={py} rx="8" ry="4.5" transform={"rotate("+(i*45)+","+px+","+py+")"} fill={st.main} stroke={hm.dark} strokeWidth="0.8"/>; })}</g>;
+        }
+        if (h === "crown") {
+          return <g>{Array.from({length:6},function(_,i){ const a=i*60*Math.PI/180; const px=cx+29*Math.cos(a), py=cy+33*Math.sin(a); return <ellipse key={i} cx={px} cy={py} rx="4" ry="7.5" transform={"rotate("+(i*60)+","+px+","+py+")"} fill={hm.base} stroke={hm.dark} strokeWidth="1"/>; })}</g>;
+        }
+        if (h === "pave") {
+          return <g>{Array.from({length:14},function(_,i){ const a=i*(360/14)*Math.PI/180; return <circle key={i} cx={cx+31*Math.cos(a)} cy={cy+35*Math.sin(a)} r="4" fill={st.main} stroke={hm.dark} strokeWidth="0.8"/>; })}</g>;
+        }
+        if (h === "basket") return (
+          <g>
+            <ellipse cx={cx} cy={cy} rx="32" ry="36" fill="none" stroke={hm.base} strokeWidth="3"/>
+            <line x1={cx-32} y1={cy} x2={cx+32} y2={cy} stroke={hm.base} strokeWidth="1.5" opacity="0.5"/>
+            <line x1={cx} y1={cy-36} x2={cx} y2={cy+36} stroke={hm.base} strokeWidth="1.5" opacity="0.5"/>
+          </g>
+        );
+        if (h === "peghead") return (
+          <g>
+            <rect x={cx-7} y={cy+28} width="14" height="20" rx="6" fill={hm.base} stroke={hm.dark} strokeWidth="1.2"/>
+            <line x1={cx} y1={cy+28} x2={cx} y2={cy+48} stroke={hm.light} strokeWidth="1.5" strokeOpacity="0.6" strokeLinecap="round"/>
+          </g>
+        );
+        /* default 4 prongs */
+        return <g>{[{x:cx-22,y:cy-20},{x:cx+22,y:cy-20},{x:cx-22,y:cy+20},{x:cx+22,y:cy+20}].map(function(p,i){ return <circle key={i} cx={p.x} cy={p.y} r="4.5" fill={hm.base} stroke={hm.dark} strokeWidth="1"/>; })}</g>;
+      }
+
+      /* ── band arms ── */
+      function BandArms() {
+        const style = config.mounting;
+        const lp = "M 70,204 C 52,174 74,132 112,94";
+        const rp = "M 210,204 C 228,174 206,132 168,94";
+        const highlight = function(d) { return <path d={d} fill="none" stroke={bm.light} strokeWidth="3.5" strokeOpacity="0.6" strokeLinecap="round"/>; };
+        const shadow = function(d) { return <path d={d} fill="none" stroke={bm.dark} strokeWidth="18" strokeLinecap="round"/>; };
+        const base = function(d) { return <path d={d} fill="none" stroke={bm.base} strokeWidth="15" strokeLinecap="round"/>; };
+
+        if (style === "double") return (
+          <g>
+            {["M 62,204 C 44,174 68,132 108,94","M 218,204 C 236,174 212,132 172,94"].map(function(d,i){ return <path key={i} d={d} fill="none" stroke={bm.dark} strokeWidth="12" strokeLinecap="round"/>; })}
+            {["M 62,204 C 44,174 68,132 108,94","M 218,204 C 236,174 212,132 172,94"].map(function(d,i){ return <path key={"b"+i} d={d} fill="none" stroke={bm.base} strokeWidth="10" strokeLinecap="round"/>; })}
+            {["M 76,204 C 60,175 82,133 120,94","M 204,204 C 220,175 198,133 160,94"].map(function(d,i){ return <path key={"c"+i} d={d} fill="none" stroke={bm.dark} strokeWidth="12" strokeLinecap="round"/>; })}
+            {["M 76,204 C 60,175 82,133 120,94","M 204,204 C 220,175 198,133 160,94"].map(function(d,i){ return <path key={"d"+i} d={d} fill="none" stroke={bm.base} strokeWidth="10" strokeLinecap="round"/>; })}
+            {["M 62,204 C 44,174 68,132 108,94","M 218,204 C 236,174 212,132 172,94"].map(function(d,i){ return <path key={"e"+i} d={d} fill="none" stroke={bm.light} strokeWidth="2.5" strokeOpacity="0.6" strokeLinecap="round"/>; })}
+          </g>
+        );
+        if (style === "doubletwist") return (
+          <g>
+            <path d="M 62,204 C 62,168 100,148 148,100" fill="none" stroke={bm.dark} strokeWidth="14" strokeLinecap="round"/>
+            <path d="M 62,204 C 62,168 100,148 148,100" fill="none" stroke={bm.base} strokeWidth="11" strokeLinecap="round"/>
+            <path d="M 218,204 C 218,168 180,148 132,100" fill="none" stroke={bm.dark} strokeWidth="14" strokeLinecap="round"/>
+            <path d="M 218,204 C 218,168 180,148 132,100" fill="none" stroke={bm.base} strokeWidth="11" strokeLinecap="round"/>
+            <path d="M 78,204 C 78,170 116,150 128,94" fill="none" stroke={bm.base} strokeWidth="9" strokeLinecap="round"/>
+            <path d="M 202,204 C 202,170 164,150 152,94" fill="none" stroke={bm.base} strokeWidth="9" strokeLinecap="round"/>
+            <path d="M 62,204 C 62,168 100,148 148,100" fill="none" stroke={bm.light} strokeWidth="2.5" strokeOpacity="0.65" strokeLinecap="round"/>
+            <path d="M 218,204 C 218,168 180,148 132,100" fill="none" stroke={bm.light} strokeWidth="2.5" strokeOpacity="0.65" strokeLinecap="round"/>
+          </g>
+        );
+        if (style === "knifeedge") return (
+          <g>
+            <path d={lp} fill="none" stroke={bm.dark} strokeWidth="7" strokeLinecap="round"/>
+            <path d={lp} fill="none" stroke={bm.base} strokeWidth="5" strokeLinecap="round"/>
+            <path d={lp} fill="none" stroke={bm.light} strokeWidth="2.5" strokeOpacity="0.85" strokeLinecap="round"/>
+            <path d={rp} fill="none" stroke={bm.dark} strokeWidth="7" strokeLinecap="round"/>
+            <path d={rp} fill="none" stroke={bm.base} strokeWidth="5" strokeLinecap="round"/>
+            <path d={rp} fill="none" stroke={bm.light} strokeWidth="2.5" strokeOpacity="0.85" strokeLinecap="round"/>
+          </g>
+        );
+        if (style === "split") return (
+          <g>
+            <path d="M 70,204 C 55,180 68,155 88,136" fill="none" stroke={bm.dark} strokeWidth="15" strokeLinecap="round"/>
+            <path d="M 70,204 C 55,180 68,155 88,136" fill="none" stroke={bm.base} strokeWidth="12" strokeLinecap="round"/>
+            <path d="M 88,136 C 96,124 108,110 116,94" fill="none" stroke={bm.dark} strokeWidth="12" strokeLinecap="round"/>
+            <path d="M 88,136 C 100,128 112,118 124,104" fill="none" stroke={bm.dark} strokeWidth="10" strokeLinecap="round"/>
+            <path d="M 88,136 C 96,124 108,110 116,94" fill="none" stroke={bm.base} strokeWidth="9" strokeLinecap="round"/>
+            <path d="M 88,136 C 100,128 112,118 124,104" fill="none" stroke={bm.base} strokeWidth="8" strokeLinecap="round"/>
+            <path d="M 210,204 C 225,180 212,155 192,136" fill="none" stroke={bm.dark} strokeWidth="15" strokeLinecap="round"/>
+            <path d="M 210,204 C 225,180 212,155 192,136" fill="none" stroke={bm.base} strokeWidth="12" strokeLinecap="round"/>
+            <path d="M 192,136 C 184,124 172,110 164,94" fill="none" stroke={bm.dark} strokeWidth="12" strokeLinecap="round"/>
+            <path d="M 192,136 C 180,128 168,118 156,104" fill="none" stroke={bm.dark} strokeWidth="10" strokeLinecap="round"/>
+            <path d="M 192,136 C 184,124 172,110 164,94" fill="none" stroke={bm.base} strokeWidth="9" strokeLinecap="round"/>
+            <path d="M 192,136 C 180,128 168,118 156,104" fill="none" stroke={bm.base} strokeWidth="8" strokeLinecap="round"/>
+            <path d="M 70,204 C 55,180 68,155 88,136" fill="none" stroke={bm.light} strokeWidth="2.5" strokeOpacity="0.6" strokeLinecap="round"/>
+            <path d="M 210,204 C 225,180 212,155 192,136" fill="none" stroke={bm.light} strokeWidth="2.5" strokeOpacity="0.6" strokeLinecap="round"/>
+          </g>
+        );
+        if (style === "tapered") return (
+          <g>
+            <path d="M 62,204 C 44,172 66,128 109,94" fill="none" stroke={bm.dark} strokeWidth="20" strokeLinecap="round"/>
+            <path d="M 62,204 C 44,172 66,128 109,94" fill="none" stroke={bm.base} strokeWidth="17" strokeLinecap="round"/>
+            <path d="M 62,204 C 44,172 66,128 109,94" fill="none" stroke={bm.light} strokeWidth="4" strokeOpacity="0.55" strokeLinecap="round"/>
+            <path d="M 218,204 C 236,172 214,128 171,94" fill="none" stroke={bm.dark} strokeWidth="20" strokeLinecap="round"/>
+            <path d="M 218,204 C 236,172 214,128 171,94" fill="none" stroke={bm.base} strokeWidth="17" strokeLinecap="round"/>
+            <path d="M 218,204 C 236,172 214,128 171,94" fill="none" stroke={bm.light} strokeWidth="4" strokeOpacity="0.55" strokeLinecap="round"/>
+          </g>
+        );
+        if (style === "hiddenhalo") return (
+          <g>
+            {shadow(lp)}{base(lp)}{highlight(lp)}
+            {shadow(rp)}{base(rp)}{highlight(rp)}
+            {[108,118,128,152,162,172].map(function(x,i){ return <circle key={i} cx={x} cy={97} r="3.5" fill={st.main} stroke={hm.dark} strokeWidth="0.8"/>; })}
+          </g>
+        );
+        /* default: single, squareedge, contemporary, etc. */
+        return (
+          <g>
+            {shadow(lp)}{base(lp)}{highlight(lp)}
+            {shadow(rp)}{base(rp)}{highlight(rp)}
+          </g>
+        );
+      }
+
+      /* ── side stones ── */
+      function SideStones() {
+        if (config.sideSetting === "none") return null;
+        const pts = [{cx:93,cy:136},{cx:78,cy:155},{cx:66,cy:172},{cx:187,cy:136},{cx:202,cy:155},{cx:214,cy:172}];
+        return <g>{pts.map(function(p,i){ return <ellipse key={i} cx={p.cx} cy={p.cy} rx="5.5" ry="4.5" fill={sideStoneColor} stroke={bm.dark} strokeWidth="0.8" opacity="0.92"/>; })}</g>;
+      }
+
+      /* ── peekaboo stone ── */
+      function PeekabooStone() {
+        if (config.peekaboo === "none") return null;
+        if (config.peekaboo === "round") return <circle cx={cx} cy={207} r="11" fill={st.main} stroke={hm.dark} strokeWidth="1.2"/>;
+        return <rect x={cx-8} y="200" width="16" height="14" rx="2" fill={st.main} stroke={hm.dark} strokeWidth="1.2"/>;
+      }
+
       return (
-        <svg width="240" height="190" viewBox="0 0 260 200" style={{ display: "block", margin: "0 auto" }}>
-          <ellipse cx="130" cy="170" rx="70" ry="18" fill={mc} opacity="0.7"/>
-          <rect x="70" y="80" width="120" height="90" rx="4" fill={mc}/>
-          <rect x="80" y="75" width="100" height="95" rx="4" fill={mc} opacity="0.5"/>
-          <path d="M70 140 Q50 160 60 175 Q80 185 130 188 Q180 185 200 175 Q210 160 190 140" fill={mc}/>
-          <rect x="112" y="54" width="8" height="30" rx="3" fill={mc}/>
-          <rect x="140" y="54" width="8" height="30" rx="3" fill={mc}/>
-          <rect x="112" y="54" width="8" height="30" rx="3" fill={mc} transform="rotate(-20 116 80)"/>
-          <rect x="140" y="54" width="8" height="30" rx="3" fill={mc} transform="rotate(20 144 80)"/>
-          <ellipse cx="130" cy="68" rx="30" ry="28" fill={sc} opacity="0.95"/>
-          <ellipse cx="130" cy="68" rx="30" ry="28" fill="none" stroke={mc} strokeWidth="2"/>
-          <line x1="130" y1="42" x2="130" y2="94" stroke="white" strokeWidth="0.5" opacity="0.5"/>
-          <line x1="102" y1="68" x2="158" y2="68" stroke="white" strokeWidth="0.5" opacity="0.5"/>
-          <line x1="109" y1="48" x2="151" y2="88" stroke="white" strokeWidth="0.5" opacity="0.3"/>
-          <line x1="151" y1="48" x2="109" y2="88" stroke="white" strokeWidth="0.5" opacity="0.3"/>
-          <circle cx="117" cy="55" r="3" fill="white" opacity="0.8"/>
-          <circle cx="125" cy="50" r="2" fill="white" opacity="0.6"/>
-          {config.sideSetting !== "none" && (
-            <>
-              {[84,93,102].map(function(x, i) { return <ellipse key={i} cx={x} cy={145} rx="5" ry="4" fill={sc} opacity="0.8" stroke={mc} strokeWidth="0.5"/>; })}
-              {[158,167,176].map(function(x, i) { return <ellipse key={i} cx={x} cy={145} rx="5" ry="4" fill={sc} opacity="0.8" stroke={mc} strokeWidth="0.5"/>; })}
-            </>
-          )}
+        <svg width="280" height="230" viewBox="0 0 280 230" style={{ display: "block", margin: "0 auto" }}>
+          {/* base ring */}
+          <ellipse cx="140" cy="206" rx="80" ry="20" fill={bm.dark}/>
+          <ellipse cx="140" cy="204" rx="80" ry="20" fill={bm.base} stroke={bm.dark} strokeWidth="1.5"/>
+          <ellipse cx="140" cy="200" rx="80" ry="20" fill="none" stroke={bm.light} strokeWidth="1.2" strokeOpacity="0.55"/>
+          {/* band arms behind stone */}
+          <BandArms/>
+          {/* side stones */}
+          <SideStones/>
+          {/* peekaboo */}
+          <PeekabooStone/>
+          {/* setting plate behind stone */}
+          <ellipse cx={cx} cy={cy+18} rx="34" ry="16" fill={hm.base} stroke={hm.dark} strokeWidth="1.5"/>
+          <ellipse cx={cx} cy={cy+18} rx="34" ry="16" fill="none" stroke={hm.light} strokeWidth="1" strokeOpacity="0.5"/>
+          {/* setting decor (halos, extra prongs, etc.) */}
+          <SettingDecor/>
+          {/* stone gem */}
+          <StoneGem/>
         </svg>
       );
     }
